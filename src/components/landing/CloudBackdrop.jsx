@@ -11,7 +11,7 @@ export default function CloudBackdrop() {
       <div className="cloud cloud-six" />
       <div className="cloud cloud-dark-one" />
       <div className="cloud cloud-dark-two" />
-      <div className="absolute inset-0 bg-background/45" />
+      <div className="absolute inset-0 bg-background/15" />
     </div>
   );
 }
