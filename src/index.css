@@ -135,8 +135,33 @@
   50% { transform: translateY(-8px); }
 }
 
+@keyframes atmosphere-drift {
+  0%, 100% { transform: scale(1.06) translate3d(-1%, 0, 0); }
+  50% { transform: scale(1.1) translate3d(1%, -1%, 0); }
+}
+
+@keyframes proof-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes scan-sweep {
+  0% { transform: translateY(-120%); opacity: 0; }
+  15%, 75% { opacity: 0.45; }
+  100% { transform: translateY(650%); opacity: 0; }
+}
+
+@keyframes scan-row-pulse {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+.atmosphere-drift { animation: atmosphere-drift 22s ease-in-out infinite; }
+.proof-track { animation: proof-scroll 28s linear infinite; }
+.scan-beam { position: absolute; inset: 0; height: 18%; background: linear-gradient(to bottom, transparent, hsl(var(--primary) / 0.12), transparent); animation: scan-sweep 5.5s ease-in-out infinite; pointer-events: none; }
+.scan-row { animation: scan-row-pulse 5s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .cloud, .hero-rise, .visual-float { animation: none; }
+  .cloud, .hero-rise, .visual-float, .atmosphere-drift, .proof-track, .scan-beam, .scan-row { animation: none; }
 }
 
 @layer components {

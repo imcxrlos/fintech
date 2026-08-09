@@ -8,6 +8,8 @@ import UpgradeModal from "@/components/report/UpgradeModal";
 import OpportunitySection from "@/components/landing/OpportunitySection";
 import SimplicitySection from "@/components/landing/SimplicitySection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import CloudBackdrop from "@/components/landing/CloudBackdrop";
+import SavingsProofStrip from "@/components/landing/SavingsProofStrip";
 
 export default function Home() {
   const [scanOpen, setScanOpen] = useState(false);
@@ -40,5 +42,5 @@ export default function Home() {
 
   const begin = () => { setError(""); setScanOpen(true); };
   const reset = () => { setReport(null); setScanOpen(true); };
-  return <div className="min-h-screen bg-background"><LandingHeader onStart={begin} />{report ? <ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /> : <><Hero onStart={begin} /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
+  return <div className="min-h-screen bg-background">{report ? <><LandingHeader onStart={begin} /><ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /></> : <div className="relative isolate overflow-clip"><CloudBackdrop /><LandingHeader onStart={begin} /><Hero onStart={begin} /><SavingsProofStrip /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></div>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
 }
