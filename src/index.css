@@ -138,3 +138,15 @@
 @media (prefers-reduced-motion: reduce) {
   .cloud, .hero-rise, .visual-float { animation: none; }
 }
+
+@layer components {
+  .legal-copy {
+    @apply space-y-5 text-base leading-7 text-muted-foreground;
+  }
+  .legal-copy h2 {
+    @apply pt-7 font-heading text-3xl text-foreground;
+  }
+  .legal-copy strong {
+    @apply font-semibold text-foreground;
+  }
+}

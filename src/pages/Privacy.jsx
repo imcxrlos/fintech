@@ -1,0 +1,18 @@
+import React from "react";
+import LegalLayout from "@/components/legal/LegalLayout";
+
+export default function Privacy() {
+  return <LegalLayout title="Privacy Policy" updated="August 9, 2026">
+    <p>This Privacy Policy explains how Mastery Labs LLC (“Mastery Labs,” “we,” “us,” or “our”) handles information in this experimental consumer-finance product. This product is under active development and is not a bank, financial institution, credit-repair organization, law firm, or financial adviser.</p>
+    <h2>Information we process</h2><p>When you use a financial-account connection, Plaid may provide account metadata, masked account identifiers, balances where supported, and transaction information such as merchant, amount, date, category, and description. We may also process account-registration details, communications, and basic technical or usage information needed to operate and secure the service.</p>
+    <h2>Bank credentials</h2><p>We do not ask for, receive, or store your online-banking username or password. Plaid operates the credential and account-connection experience under its own privacy policy and terms.</p>
+    <h2>How information is used</h2><p>We use information to provide requested scans; normalize and analyze transactions; identify supported recurring-charge, bill-change, duplicate-charge, and similar patterns; secure and troubleshoot the service; comply with law; and improve the experimental product. Findings are informational estimates and may be incomplete or inaccurate.</p>
+    <h2>Anonymous scans and retention</h2><p>The current anonymous scan is designed to analyze available transaction information for the active session without requiring an account. The current version does not intentionally save a completed anonymous report to a user profile. Browser session data may disappear when the page or session ends. Service providers may retain limited records under their own policies or as necessary for security, compliance, and reliable operation.</p>
+    <h2>Sharing</h2><p>We may disclose information to Plaid and other vendors that host, secure, analyze, or support the service; when required by law or valid legal process; to protect users, Mastery Labs, or others; or in connection with a corporate transaction. We do not sell financial transaction data or use it for third-party targeted advertising.</p>
+    <h2>Security and data minimization</h2><p>We use reasonable administrative, technical, and organizational safeguards and seek to process only information needed for the service. No system is completely secure, and we cannot guarantee absolute security. We do not display complete account numbers.</p>
+    <h2>Your choices and deletion</h2><p>You may stop a scan before completing Plaid Link and may avoid creating an account. Authenticated features should provide a way to request deletion of saved account data when enabled. During this experimental preview, contact details and a production privacy-request channel must be published before real-user launch; do not use the preview with real financial accounts until that channel is available.</p>
+    <h2>Children</h2><p>The service is not intended for anyone under 18, and we do not knowingly collect financial-account information from children.</p>
+    <h2>Changes</h2><p>We may update this policy as the product changes. The updated date above identifies the current version. Material changes should be communicated through the service when appropriate.</p>
+    <h2>Contact</h2><p>This experimental product is operated by Mastery Labs LLC. A verified privacy contact and mailing address must be added here before public production launch.</p>
+  </LegalLayout>;
+}
