@@ -8,6 +8,7 @@ import UpgradeModal from "@/components/report/UpgradeModal";
 import OpportunitySection from "@/components/landing/OpportunitySection";
 import SimplicitySection from "@/components/landing/SimplicitySection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import CloudBackdrop from "@/components/landing/CloudBackdrop";
 
 export default function Home() {
   const [scanOpen, setScanOpen] = useState(false);
@@ -40,6 +41,5 @@ export default function Home() {
 
   const begin = () => { setError(""); setScanOpen(true); };
   const reset = () => { setReport(null); setScanOpen(true); };
-  const meshGradient = `radial-gradient(ellipse 55% 50% at 15% 12%, #cce8d6 0%, transparent 50%), radial-gradient(ellipse 50% 45% at 85% 8%, #d1d5f2 0%, transparent 50%), radial-gradient(ellipse 45% 40% at 50% 42%, #e8e0f1 0%, transparent 50%), radial-gradient(ellipse 50% 45% at 88% 55%, #d1d5f2 0%, transparent 50%), radial-gradient(ellipse 45% 40% at 12% 62%, #cce8d6 0%, transparent 50%), radial-gradient(ellipse 40% 35% at 55% 85%, #e8e0f1 0%, transparent 45%), radial-gradient(ellipse 35% 30% at 82% 82%, #d1d5f2 0%, transparent 40%), #eef2f5`;
-  return <div className="min-h-screen" style={{ background: meshGradient }}>{report ? <><LandingHeader onStart={begin} /><ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /></> : <div className="relative"><LandingHeader onStart={begin} /><Hero onStart={begin} /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></div>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
+  return <div className="min-h-screen" style={{ background: "linear-gradient(to bottom, #a8d0f0 0%, #c5e0f5 30%, #dceaf5 60%, #e8f1f8 100%)" }}>{report ? <><LandingHeader onStart={begin} /><ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /></> : <div className="relative"><CloudBackdrop /><LandingHeader onStart={begin} /><Hero onStart={begin} /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></div>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
 }

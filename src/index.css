@@ -124,8 +124,8 @@
 }
 
 @keyframes cloud-drift {
-  from { transform: translate3d(-1.5rem, 0, 0) scale(0.96); }
-  to { transform: translate3d(2rem, -1rem, 0) scale(1.05); }
+  from { transform: translateX(-15vw); }
+  to { transform: translateX(115vw); }
 }
 
 @keyframes hero-rise {
