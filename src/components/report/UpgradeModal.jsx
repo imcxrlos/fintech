@@ -1,0 +1,7 @@
+import React from "react";
+import { FileDown, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+export default function UpgradeModal({ open, onClose }) {
+  if (!open) return null;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 p-4 backdrop-blur-sm"><div className="w-full max-w-md rounded-[2rem] border bg-card p-8 shadow-2xl"><div className="flex justify-between"><span className="rounded-2xl bg-primary/10 p-3 text-primary"><FileDown className="h-6 w-6" /></span><button onClick={onClose} aria-label="Close"><X className="h-5 w-5 text-muted-foreground" /></button></div><h2 className="mt-6 font-heading text-3xl font-semibold">Save your full Money Report</h2><p className="mt-4 leading-7 text-muted-foreground">Upgrade to Premium to download a complete PDF report containing your findings, recurring expenses, potential savings, and recommended actions.</p><div className="mt-6 rounded-2xl bg-muted p-4"><p className="font-semibold">Premium · $5/month</p><p className="mt-1 text-sm text-muted-foreground">Continuous monitoring, alerts, history, and downloadable reports.</p></div><Button disabled className="mt-6 h-12 w-full rounded-full">Premium coming soon</Button><p className="mt-3 text-center text-xs text-muted-foreground">Your complete results remain available to view here for free.</p></div></div>;
+}
