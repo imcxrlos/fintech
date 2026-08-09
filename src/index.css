@@ -105,20 +105,20 @@
   .cloud {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(70px);
+    filter: blur(110px);
     pointer-events: none;
-    opacity: 0.9;
-    animation: cloud-drift 14s ease-in-out infinite alternate;
+    opacity: 1;
+    animation: cloud-drift 16s ease-in-out infinite alternate;
   }
 
-  .cloud-one { width: 42rem; height: 20rem; left: -10rem; top: 2%; background: hsl(158 48% 70%); }
-  .cloud-two { width: 36rem; height: 17rem; right: -6rem; top: 18%; background: hsl(218 60% 75%); animation-delay: -5s; }
-  .cloud-three { width: 32rem; height: 15rem; left: 25%; top: 38%; background: hsl(270 40% 78%); animation-delay: -9s; }
-  .cloud-four { width: 40rem; height: 19rem; right: -8rem; top: 52%; background: hsl(158 48% 70%); animation-delay: -3s; }
-  .cloud-five { width: 34rem; height: 16rem; left: -6rem; top: 70%; background: hsl(218 60% 75%); animation-delay: -7s; }
-  .cloud-six { width: 30rem; height: 14rem; left: 30%; top: 85%; background: hsl(270 40% 78%); animation-delay: -11s; }
-  .cloud-dark-one { width: 36rem; height: 16rem; left: 20%; top: 28%; background: hsl(153 55% 40%); animation-delay: -2s; }
-  .cloud-dark-two { width: 30rem; height: 14rem; right: 10%; top: 65%; background: hsl(215 50% 52%); animation-delay: -6s; }
+  .cloud-one { width: 50rem; height: 34rem; left: -12rem; top: 0%; background: hsl(140 35% 86%); }
+  .cloud-two { width: 44rem; height: 30rem; right: -10rem; top: 12%; background: hsl(235 55% 88%); animation-delay: -5s; }
+  .cloud-three { width: 40rem; height: 28rem; left: 30%; top: 30%; background: hsl(280 33% 91%); animation-delay: -9s; }
+  .cloud-four { width: 46rem; height: 32rem; right: -12rem; top: 45%; background: hsl(235 55% 88%); animation-delay: -3s; }
+  .cloud-five { width: 42rem; height: 30rem; left: -8rem; top: 62%; background: hsl(140 35% 86%); animation-delay: -7s; }
+  .cloud-six { width: 38rem; height: 26rem; left: 28%; top: 78%; background: hsl(280 33% 91%); animation-delay: -11s; }
+  .cloud-dark-one { width: 44rem; height: 30rem; left: 15%; top: 20%; background: hsl(210 50% 84%); animation-delay: -2s; }
+  .cloud-dark-two { width: 40rem; height: 28rem; right: 5%; top: 55%; background: hsl(190 40% 85%); animation-delay: -6s; }
   .hero-rise { animation: hero-rise 0.75s ease-out both; }
   .visual-float { animation: visual-float 6s ease-in-out infinite; }
 }
