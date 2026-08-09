@@ -6,7 +6,7 @@ export default async function(req) {
     if (!clientUserId) return Response.json({ error: "A scan session is required" }, { status: 400 });
     const data = await plaidRequest("/link/token/create", {
       user: { client_user_id: String(clientUserId) },
-      client_name: "CXRLOS",
+      client_name: "Savings Scan",
       products: ["transactions"],
       country_codes: ["US"],
       language: "en",

@@ -5,6 +5,9 @@ import Hero from "@/components/landing/Hero";
 import ScanModal from "@/components/scan/ScanModal";
 import ReportDashboard from "@/components/report/ReportDashboard";
 import UpgradeModal from "@/components/report/UpgradeModal";
+import OpportunitySection from "@/components/landing/OpportunitySection";
+import SimplicitySection from "@/components/landing/SimplicitySection";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 export default function Home() {
   const [scanOpen, setScanOpen] = useState(false);
@@ -16,8 +19,8 @@ export default function Home() {
   const startPlaid = async () => {
     setError(""); setStage("connecting");
     try {
-      const clientUserId = sessionStorage.getItem("cxrlos_scan_id") || crypto.randomUUID();
-      sessionStorage.setItem("cxrlos_scan_id", clientUserId);
+      const clientUserId = sessionStorage.getItem("money_scan_id") || crypto.randomUUID();
+      sessionStorage.setItem("money_scan_id", clientUserId);
       const response = await base44.functions.invoke("createLinkToken", { clientUserId });
       if (!window.Plaid) throw new Error("The secure connection is still loading. Please try again.");
       const handler = window.Plaid.create({
@@ -37,5 +40,5 @@ export default function Home() {
 
   const begin = () => { setError(""); setScanOpen(true); };
   const reset = () => { setReport(null); setScanOpen(true); };
-  return <div className="min-h-screen bg-background"><LandingHeader onStart={begin} />{report ? <ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /> : <Hero onStart={begin} />}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
+  return <div className="min-h-screen bg-background"><LandingHeader onStart={begin} />{report ? <ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /> : <><Hero onStart={begin} /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
 }

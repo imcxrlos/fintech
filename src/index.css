@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -31,9 +31,9 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 1rem;
-    --font-heading: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-heading: "Instrument Serif", ui-serif, Georgia, serif;
     --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Instrument Serif", ui-serif, Georgia, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -95,4 +95,46 @@
   ::selection {
     @apply bg-primary/20 text-foreground;
   }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-primary;
+  }
+
+  .cloud {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(55px);
+    pointer-events: none;
+    opacity: 0.7;
+    animation: cloud-drift 13s ease-in-out infinite alternate;
+  }
+
+  .cloud-one { width: 32rem; height: 15rem; left: -8rem; bottom: -4rem; background: hsl(158 38% 87%); }
+  .cloud-two { width: 28rem; height: 13rem; right: -5rem; top: 10%; background: hsl(218 55% 92%); animation-delay: -5s; }
+  .cloud-three { width: 24rem; height: 11rem; left: 42%; bottom: -5rem; background: hsl(270 30% 93%); animation-delay: -9s; }
+  .cloud-dark-one { width: 30rem; height: 14rem; left: -10rem; bottom: -7rem; background: hsl(153 55% 34% / 0.28); }
+  .cloud-dark-two { width: 25rem; height: 12rem; right: -8rem; top: -3rem; background: hsl(215 50% 45% / 0.2); animation-delay: -6s; }
+  .hero-rise { animation: hero-rise 0.75s ease-out both; }
+  .visual-float { animation: visual-float 6s ease-in-out infinite; }
+}
+
+@keyframes cloud-drift {
+  from { transform: translate3d(-1.5rem, 0, 0) scale(0.96); }
+  to { transform: translate3d(2rem, -1rem, 0) scale(1.05); }
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes visual-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .hero-rise, .visual-float { animation: none; }
 }
