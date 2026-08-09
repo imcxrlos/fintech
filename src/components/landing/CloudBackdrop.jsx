@@ -1,6 +1,6 @@
 import React from "react";
 
-const CLOUD_IMG = "https://media.base44.com/images/public/6a78f94b469a2985507520df/b074b0bdf_generated_image.png";
+const CLOUD_IMG = "https://media.base44.com/images/public/6a78f94b469a2985507520df/81a5a724c_generated_image.png";
 
 export default function CloudBackdrop() {
   const clouds = [
