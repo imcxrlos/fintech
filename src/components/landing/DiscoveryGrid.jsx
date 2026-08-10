@@ -43,6 +43,8 @@ export default function DiscoveryGrid() {
 
         <div className="mt-14 flex justify-center">
           <div className="relative aspect-[4/5] w-full max-w-sm select-none">
+            <div className="absolute inset-0 rounded-[2rem] border border-white/40 bg-white/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] backdrop-blur-2xl" style={{ transform: "scale(0.93) translateY(20px)", opacity: 0.3 }} />
+            <div className="absolute inset-0 rounded-[2rem] border border-white/50 bg-white/40 shadow-[0_12px_44px_-14px_rgba(0,0,0,0.12)] backdrop-blur-2xl" style={{ transform: "scale(0.97) translateY(10px)", opacity: 0.5 }} />
             <AnimatePresence mode="popLayout">
               <motion.div
                 key={current}
@@ -64,17 +66,6 @@ export default function DiscoveryGrid() {
                 <span className="mt-6 text-xs text-muted-foreground/40">Swipe →</span>
               </motion.div>
             </AnimatePresence>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-8 max-w-xs">
-          <div className="h-1 overflow-hidden rounded-full bg-foreground/10">
-            <motion.div
-              className="h-full rounded-full bg-primary"
-              initial={{ width: "0%" }}
-              animate={{ width: `${((current + 1) / categories.length) * 100}%` }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
           </div>
         </div>
       </div>
