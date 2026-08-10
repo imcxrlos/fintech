@@ -168,6 +168,78 @@
 }
 
 @layer components {
+  .glow-button {
+    cursor: pointer;
+    font-size: 1.05rem;
+    border-radius: 16px;
+    border: none;
+    padding: 2px;
+    background: radial-gradient(circle 80px at 80% -10%, #ffffff, hsl(153 30% 9%));
+    position: relative;
+    transition: transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .glow-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .glow-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .glow-button::after {
+    content: "";
+    position: absolute;
+    width: 65%;
+    height: 60%;
+    border-radius: 120px;
+    top: 0;
+    right: 0;
+    box-shadow: 0 0 20px hsl(150 60% 50% / 0.25);
+    z-index: -1;
+  }
+  .glow-button__blob {
+    position: absolute;
+    width: 70px;
+    height: 100%;
+    border-radius: 16px;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(
+      circle 60px at 0% 100%,
+      hsl(155 65% 60%),
+      hsl(153 57% 28% / 0.5),
+      transparent
+    );
+    box-shadow: -10px 10px 30px hsl(150 60% 40% / 0.18);
+  }
+  .glow-button__inner {
+    padding: 12px 28px;
+    border-radius: 14px;
+    color: #fff;
+    z-index: 3;
+    position: relative;
+    background: radial-gradient(circle 80px at 80% -50%, #5a6b62, #0f1512);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .glow-button__inner::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 14px;
+    background: radial-gradient(
+      circle 60px at 0% 100%,
+      hsl(155 65% 55% / 0.12),
+      hsl(153 57% 28% / 0.08),
+      transparent
+    );
+    position: absolute;
+  }
   .legal-copy {
     @apply space-y-5 text-base leading-7 text-muted-foreground;
   }
