@@ -30,7 +30,7 @@ export default function ComparisonSection() {
           Instead, we'll do the searching for you.
         </p>
         <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-foreground/10 p-8 sm:p-10">
+          <div className="rounded-3xl border border-white/50 bg-white/40 p-8 shadow-[0_12px_48px_-16px_rgba(0,0,0,0.12)] backdrop-blur-2xl sm:p-10">
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-muted-foreground">Doing it yourself</h3>
             <ul className="mt-6 space-y-4">
               {diyTasks.map((task) => (
@@ -43,7 +43,7 @@ export default function ComparisonSection() {
               ))}
             </ul>
           </div>
-          <div className="rounded-3xl border-2 border-primary/25 bg-primary/5 p-8 sm:p-10">
+          <div className="rounded-3xl border border-primary/30 bg-primary/5 p-8 shadow-[0_12px_48px_-16px_rgba(0,0,0,0.12)] backdrop-blur-2xl sm:p-10">
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-primary">Let us find it</h3>
             <ul className="mt-6 space-y-4">
               {weDo.map((item) => (

@@ -19,7 +19,7 @@ export default function ActionableSection() {
         <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground">
           When something is worth looking into, every finding is presented in a way that makes it feel actionable — not just raw transaction data.
         </p>
-        <div className="mt-14 border-t border-foreground/10">
+        <div className="mt-14 rounded-3xl border border-white/50 bg-white/40 px-8 shadow-[0_12px_48px_-16px_rgba(0,0,0,0.12)] backdrop-blur-2xl sm:px-12">
           {elements.map((item, i) => (
             <div key={item.label} className="flex gap-6 border-b border-foreground/10 py-7 sm:gap-10">
               <span className="font-heading text-3xl leading-none text-muted-foreground/30">{i + 1}</span>
