@@ -1,21 +1,26 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import LandingHeader from "@/components/landing/LandingHeader";
 import Hero from "@/components/landing/Hero";
 import ScanModal from "@/components/scan/ScanModal";
-import ReportDashboard from "@/components/report/ReportDashboard";
-import UpgradeModal from "@/components/report/UpgradeModal";
+import PreviewDashboard from "@/components/report/PreviewDashboard";
 import OpportunitySection from "@/components/landing/OpportunitySection";
 import SimplicitySection from "@/components/landing/SimplicitySection";
 import LandingFooter from "@/components/landing/LandingFooter";
 import CloudBackdrop from "@/components/landing/CloudBackdrop";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [scanOpen, setScanOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [stage, setStage] = useState("ready");
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
+
+  const saveReportAndRedirect = (path) => {
+    sessionStorage.setItem("pendingReport", JSON.stringify(report));
+    navigate(path);
+  };
 
   const startPlaid = async () => {
     setError(""); setStage("connecting");
@@ -30,16 +35,68 @@ export default function Home() {
           setStage("analyzing");
           try {
             const result = await base44.functions.invoke("analyzePlaidConnection", { publicToken });
-            setReport(result.data); setScanOpen(false); setStage("ready"); window.scrollTo({ top: 0, behavior: "smooth" });
-          } catch (scanError) { setError(scanError.response?.data?.error || scanError.message); setStage("ready"); }
+            const authed = await base44.auth.isAuthenticated();
+            if (authed) {
+              const totalSavings = (result.data.summary.potentialSavings || 0) + (result.data.summary.potentialRecovery || 0);
+              await base44.entities.Report.create({
+                summary: result.data.summary,
+                findings: result.data.findings,
+                potential_savings: totalSavings,
+              });
+              navigate("/report");
+            } else {
+              setReport(result.data);
+              setScanOpen(false);
+              setStage("ready");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          } catch (scanError) {
+            setError(scanError.response?.data?.error || scanError.message);
+            setStage("ready");
+          }
         },
-        onExit: (plaidError) => { setStage("ready"); if (plaidError) setError(plaidError.display_message || "The connection was not completed."); },
+        onExit: (plaidError) => {
+          setStage("ready");
+          if (plaidError) setError(plaidError.display_message || "The connection was not completed.");
+        },
       });
       handler.open();
-    } catch (connectionError) { setError(connectionError.response?.data?.error || connectionError.message); setStage("ready"); }
+    } catch (connectionError) {
+      setError(connectionError.response?.data?.error || connectionError.message);
+      setStage("ready");
+    }
   };
 
   const begin = () => { setError(""); setScanOpen(true); };
   const reset = () => { setReport(null); setScanOpen(true); };
-  return <div className="min-h-screen" style={{ background: "#ffffff" }}>{report ? <><LandingHeader onStart={begin} /><ReportDashboard report={report} onDownload={() => setUpgradeOpen(true)} onNewScan={reset} /></> : <div className="relative"><CloudBackdrop /><LandingHeader onStart={begin} /><Hero onStart={begin} /><OpportunitySection /><SimplicitySection onStart={begin} /><LandingFooter /></div>}<ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} /></div>;
+
+  const handleCreateAccount = () => saveReportAndRedirect("/register?returnTo=/report");
+  const handleSignIn = () => saveReportAndRedirect("/login?returnTo=/report");
+  const handlePurchase = () => saveReportAndRedirect("/register?returnTo=/report");
+
+  return (
+    <div className="min-h-screen" style={{ background: "#ffffff" }}>
+      {report ? (
+        <>
+          <LandingHeader onStart={begin} />
+          <PreviewDashboard
+            report={report}
+            onCreateAccount={handleCreateAccount}
+            onSignIn={handleSignIn}
+            onPurchase={handlePurchase}
+          />
+        </>
+      ) : (
+        <div className="relative">
+          <CloudBackdrop />
+          <LandingHeader onStart={begin} />
+          <Hero onStart={begin} />
+          <OpportunitySection />
+          <SimplicitySection onStart={begin} />
+          <LandingFooter />
+        </div>
+      )}
+      <ScanModal open={scanOpen} stage={stage} error={error} onClose={() => setScanOpen(false)} onConnect={startPlaid} />
+    </div>
+  );
 }

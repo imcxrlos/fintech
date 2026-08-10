@@ -1,0 +1,45 @@
+{
+  "properties": {
+    "summary": {
+      "type": "object",
+      "properties": {
+        "transactionsAnalyzed": {
+          "type": "number"
+        },
+        "accountsAnalyzed": {
+          "type": "number"
+        },
+        "potentialSavings": {
+          "type": "number"
+        },
+        "currentRecurringSpending": {
+          "type": "number"
+        },
+        "potentialRecovery": {
+          "type": "number"
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "potential_savings": {
+      "type": "number",
+      "default": 0
+    },
+    "is_paid": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "summary",
+    "findings",
+    "potential_savings"
+  ],
+  "name": "Report",
+  "type": "object"
+}
