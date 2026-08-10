@@ -5,8 +5,11 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import Hero from "@/components/landing/Hero";
 import ScanModal from "@/components/scan/ScanModal";
 import PreviewDashboard from "@/components/report/PreviewDashboard";
-import OpportunitySection from "@/components/landing/OpportunitySection";
-import SimplicitySection from "@/components/landing/SimplicitySection";
+import MoneyHidingSection from "@/components/landing/MoneyHidingSection";
+import DiscoveryGrid from "@/components/landing/DiscoveryGrid";
+import ComparisonSection from "@/components/landing/ComparisonSection";
+import ActionableSection from "@/components/landing/ActionableSection";
+import FinalCTA from "@/components/landing/FinalCTA";
 import LandingFooter from "@/components/landing/LandingFooter";
 import CloudBackdrop from "@/components/landing/CloudBackdrop";
 
@@ -91,8 +94,11 @@ export default function Home() {
           <CloudBackdrop />
           <LandingHeader onStart={begin} />
           <Hero onStart={begin} />
-          <OpportunitySection />
-          <SimplicitySection onStart={begin} />
+          <MoneyHidingSection />
+          <DiscoveryGrid />
+          <ComparisonSection />
+          <ActionableSection />
+          <FinalCTA onStart={begin} />
           <LandingFooter />
         </div>
       )}
