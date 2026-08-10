@@ -28,7 +28,7 @@ export default function ActionableSection() {
   return (
     <section className="relative z-10 px-5 lg:px-8">
       <div className="mx-auto max-w-3xl">
-        <div className="py-24 lg:py-32">
+        <div className="pb-6 pt-24 lg:pb-8 lg:pt-32">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">The report</p>
           <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
             We don't just show you a number.
