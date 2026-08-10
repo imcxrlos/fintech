@@ -2,11 +2,11 @@ import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 
 const elements = [
-  { label: "What we found", description: "A clear description of the charge, pattern, or opportunity we spotted." },
-  { label: "Why it matters", description: "The reason this caught our attention and why you should care." },
-  { label: "The amount involved", description: "The dollar figure at stake, when the data supports it." },
-  { label: "What may be recoverable", description: "An estimate of what could be saved or recovered." },
-  { label: "What you can do next", description: "Concrete next steps so every finding feels actionable." },
+  { label: "We found something.", description: "See exactly what caught our attention — the charge, fee, bill, subscription, or opportunity." },
+  { label: "Here's why it matters.", description: "We explain what's unusual, what may have happened, and why it's worth taking a closer look." },
+  { label: "Here's what's at stake.", description: "See the actual amount involved and, when possible, how much money may be on the line." },
+  { label: "Here's what you could get back.", description: "We estimate the potential savings, refund, credit, or recovery when the available information supports it." },
+  { label: "Here's how to get it.", description: "Follow the recommended next steps to act on the finding and potentially put that money back in your pocket." },
 ];
 
 const EASE = [0.22, 1, 0.36, 1];
