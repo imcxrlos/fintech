@@ -127,7 +127,7 @@ export default function Report() {
         {!report.is_paid ? (
           <section className="mt-12 rounded-[2rem] border-2 border-primary/20 bg-primary/5 p-7 sm:p-10">
             {showSavingsCTA ? (
-              <h2 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Would you say {money(totalSavings)} for $5?</h2>
+              <h2 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Would you save {money(totalSavings)} for $5?</h2>
             ) : (
               <h2 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Get your full report for $5.</h2>
             )}
