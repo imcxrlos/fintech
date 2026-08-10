@@ -23,8 +23,8 @@ export default function DiscoveryGrid() {
         </h2>
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map(({ icon: Icon, title, description }) => (
-            <div key={title} className="group rounded-2xl border border-foreground/10 p-8 transition-all hover:border-foreground/20 hover:shadow-sm">
-              <Icon className="h-5 w-5 text-muted-foreground/50 transition-colors group-hover:text-primary" strokeWidth={1.5} />
+            <div key={title} className="group rounded-2xl border border-white/40 bg-white/30 p-8 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-all duration-300 hover:border-white/60 hover:bg-white/40 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.12)]">
+              <Icon className="h-5 w-5 text-muted-foreground/60 transition-colors duration-300 group-hover:text-primary" strokeWidth={1.5} />
               <h3 className="mt-5 font-heading text-xl font-medium text-foreground">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
             </div>
