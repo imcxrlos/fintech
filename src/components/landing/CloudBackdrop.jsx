@@ -4,15 +4,12 @@ const CLOUD_IMG = "https://media.base44.com/images/public/6a78f94b469a2985507520
 
 export default function CloudBackdrop() {
   const clouds = [
-    { top: "4%", left: "-6%", width: "240px", opacity: 0.8, mobile: true },
-    { top: "38%", left: "52%", width: "210px", opacity: 0.65, mobile: true },
-    { top: "74%", left: "-4%", width: "230px", opacity: 0.55, mobile: true },
-    { top: "12%", left: "60%", width: "280px", opacity: 0.7, mobile: false },
-    { top: "22%", left: "4%", width: "260px", opacity: 0.6, mobile: false },
-    { top: "26%", left: "66%", width: "300px", opacity: 0.65, mobile: false },
-    { top: "50%", left: "8%", width: "320px", opacity: 0.6, mobile: false },
-    { top: "56%", left: "62%", width: "280px", opacity: 0.7, mobile: false },
-    { top: "84%", left: "58%", width: "300px", opacity: 0.5, mobile: false },
+    { top: "6%", left: "-5%", width: "240px", opacity: 0.8, mobile: true },
+    { top: "44%", left: "54%", width: "210px", opacity: 0.65, mobile: true },
+    { top: "80%", left: "-4%", width: "230px", opacity: 0.55, mobile: true },
+    { top: "6%", left: "62%", width: "280px", opacity: 0.7, mobile: false },
+    { top: "44%", left: "2%", width: "260px", opacity: 0.6, mobile: false },
+    { top: "80%", left: "58%", width: "300px", opacity: 0.5, mobile: false },
   ];
 
   return (
