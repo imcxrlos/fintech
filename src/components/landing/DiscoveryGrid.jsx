@@ -42,7 +42,7 @@ export default function DiscoveryGrid() {
   }));
 
   return (
-    <section className="relative z-10 px-5 py-24 lg:px-8 lg:py-32">
+    <section className="relative z-10 px-5 py-12 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">What we search for</p>
         <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
