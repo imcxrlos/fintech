@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -19,21 +19,32 @@ export default function Home() {
   const [stage, setStage] = useState("ready");
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
+  const linkTokenRef = useRef(null);
 
   const saveReportAndRedirect = (path) => {
     sessionStorage.setItem("pendingReport", JSON.stringify(report));
     navigate(path);
   };
 
+  const ensureLinkToken = () => {
+    if (!linkTokenRef.current) {
+      const clientUserId = sessionStorage.getItem("money_scan_id") || crypto.randomUUID();
+      sessionStorage.setItem("money_scan_id", clientUserId);
+      linkTokenRef.current = base44.functions
+        .invoke("createLinkToken", { clientUserId })
+        .then((res) => res.data.linkToken)
+        .catch((err) => { linkTokenRef.current = null; throw err; });
+    }
+    return linkTokenRef.current;
+  };
+
   const startPlaid = async () => {
     setError(""); setStage("connecting");
     try {
-      const clientUserId = sessionStorage.getItem("money_scan_id") || crypto.randomUUID();
-      sessionStorage.setItem("money_scan_id", clientUserId);
-      const response = await base44.functions.invoke("createLinkToken", { clientUserId });
+      const token = await ensureLinkToken();
       if (!window.Plaid) throw new Error("The secure connection is still loading. Please try again.");
       const handler = window.Plaid.create({
-        token: response.data.linkToken,
+        token,
         onSuccess: async (publicToken) => {
           setStage("analyzing");
           try {
@@ -70,7 +81,7 @@ export default function Home() {
     }
   };
 
-  const begin = () => { setError(""); setScanOpen(true); };
+  const begin = () => { setError(""); setScanOpen(true); ensureLinkToken(); };
   const reset = () => { setReport(null); setScanOpen(true); };
 
   const handleCreateAccount = () => saveReportAndRedirect("/register?returnTo=/report");
