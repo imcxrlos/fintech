@@ -188,6 +188,13 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+  .glow-button--full {
+    width: 100%;
+  }
+  .glow-button--full .glow-button__inner {
+    width: 100%;
+    justify-content: center;
+  }
   .glow-button::after {
     content: "";
     position: absolute;
