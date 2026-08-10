@@ -133,6 +133,19 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes scan-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scan-rise {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-scan-fade-in { animation: scan-fade-in 0.28s ease-out both; }
+.animate-scan-rise { animation: scan-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 @keyframes visual-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
@@ -164,7 +177,7 @@
 .scan-row { animation: scan-row-pulse 5s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloud, .hero-rise, .visual-float, .atmosphere-drift, .proof-track, .scan-beam, .scan-row { animation: none; }
+  .cloud, .hero-rise, .visual-float, .atmosphere-drift, .proof-track, .scan-beam, .scan-row, .animate-scan-fade-in, .animate-scan-rise { animation: none; }
 }
 
 @layer components {
