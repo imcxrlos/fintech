@@ -45,23 +45,35 @@ function recurringPaymentDetector(transactions) {
   });
 }
 
+const billTerms = /UTILITIES|TELECOMMUNICATION|INSURANCE|RENT|MORTGAGE|GAS|ELECTRIC|WATER|INTERNET|PHONE/;
+
 function subscriptionAnalyzer(recurring) {
-  const billTerms = /UTILITIES|TELECOMMUNICATION|INSURANCE|RENT|MORTGAGE|GAS|ELECTRIC|WATER|INTERNET|PHONE/;
   return recurring.filter((item) => !billTerms.test(item.category)).map((item) => ({
     type: "subscription", title: item.merchant, badge: "Recurring subscription detected", amount: item.currentAmount,
     frequency: item.frequency, monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12), annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
     confidence: item.confidence, firstObserved: item.firstObserved, lastObserved: item.lastObserved,
     reason: `${item.count} similarly timed charges were observed at an approximately ${item.frequency} cadence.`,
+    nextSteps: [
+      `Log into your ${item.merchant} account and review your current plan and usage.`,
+      `If you no longer use this service, cancel it directly with ${item.merchant} or through your account settings.`,
+      `Check if a lower tier or free alternative exists that still meets your needs.`,
+      `If you cancel, you could save approximately $${Math.round(item.currentAmount * yearlyMultiplier[item.frequency])} per year.`,
+    ],
   }));
 }
 
 function billAnalyzer(recurring) {
-  const billTerms = /UTILITIES|TELECOMMUNICATION|INSURANCE|RENT|MORTGAGE|GAS|ELECTRIC|WATER|INTERNET|PHONE/;
   return recurring.filter((item) => billTerms.test(item.category)).map((item) => ({
     type: "bill", title: item.merchant, badge: "Recurring bill detected", amount: item.currentAmount, frequency: item.frequency,
     monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12), annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
     confidence: item.confidence, firstObserved: item.firstObserved, lastObserved: item.lastObserved,
     reason: `${item.count} recurring household-service charges were detected.`,
+    nextSteps: [
+      `Review your ${item.merchant} bill for any unexplained charges or rate changes.`,
+      `Contact ${item.merchant} to ask about discounts, promotions, or loyalty rates.`,
+      `Compare rates with competing providers to see if you could save.`,
+      `Consider bundling services or adjusting your plan to reduce costs.`,
+    ],
   }));
 }
 
@@ -72,7 +84,17 @@ function priceIncreaseAnalyzer(recurring) {
     const increase = item.currentAmount - previous;
     if (increase < 1 || increase / previous < 0.05) return [];
     const annualImpact = increase * yearlyMultiplier[item.frequency];
-    return [{ type: "increase", title: item.merchant, badge: "Potential price increase", amount: item.currentAmount, previousAmount: previous, increase, annualImpact, frequency: item.frequency, reason: `The latest charge is ${Math.round((increase / previous) * 100)}% above the previous observed median.` }];
+    return [{
+      type: "increase", title: item.merchant, badge: "Potential price increase", amount: item.currentAmount,
+      previousAmount: previous, increase, annualImpact, frequency: item.frequency,
+      reason: `The latest charge is ${Math.round((increase / previous) * 100)}% above the previous observed median.`,
+      nextSteps: [
+        `Contact ${item.merchant} and ask about the recent price increase.`,
+        `The latest charge is ${Math.round((increase / previous) * 100)}% higher than the previous median of $${previous.toFixed(2)}.`,
+        `Ask about grandfathered pricing, a loyalty discount, or a lower-tier plan.`,
+        `If they won't adjust, consider switching to a competitor — annual impact: +$${Math.round(annualImpact)}.`,
+      ],
+    }];
   });
 }
 
@@ -82,12 +104,174 @@ function overchargeAnalyzer(transactions) {
     for (let j = i + 1; j < transactions.length; j += 1) {
       const first = transactions[i]; const second = transactions[j];
       if (first.merchantKey === second.merchantKey && Math.abs(first.amount - second.amount) < 0.01 && daysBetween(first.date, second.date) <= 3) {
-        findings.push({ type: "duplicate", title: "Potential duplicate charge", merchant: second.merchant, badge: "Worth reviewing", amount: second.amount, recovery: second.amount, reason: `Two matching ${second.merchant} charges were detected within ${daysBetween(first.date, second.date)} day${daysBetween(first.date, second.date) === 1 ? "" : "s"}.` });
+        findings.push({
+          type: "duplicate", title: "Potential duplicate charge", merchant: second.merchant, badge: "Worth reviewing",
+          amount: second.amount, recovery: second.amount,
+          reason: `Two matching ${second.merchant} charges were detected within ${daysBetween(first.date, second.date)} day${daysBetween(first.date, second.date) === 1 ? "" : "s"}.`,
+          nextSteps: [
+            `Contact ${second.merchant} directly and request a refund for the duplicate $${second.amount} charge.`,
+            `Reference both transaction dates when speaking with customer support.`,
+            `If the merchant doesn't resolve it within 5 business days, dispute the charge with your bank.`,
+            `Keep screenshots of both charges as evidence for the dispute.`,
+          ],
+        });
         break;
       }
     }
   }
   return findings;
+}
+
+function bankFeeAnalyzer(transactions) {
+  const feePatterns = /\bfee\b|overdraft|\bnsf\b|insufficient fund|maintenance|service charge|\batm\b|late fee|monthly fee|annual fee|foreign transaction|wire fee|statement fee|replacement fee|excess activity|minimum balance|return item/;
+  return transactions
+    .filter((t) => feePatterns.test(t.merchantKey) || feePatterns.test(cleanMerchant(t.description)))
+    .map((item) => ({
+      type: "fee",
+      title: item.merchant,
+      merchant: item.merchant,
+      badge: "Bank fee detected",
+      amount: item.amount,
+      date: item.date,
+      recovery: item.amount,
+      reason: `A $${item.amount.toFixed(2)} fee was charged by ${item.merchant} on ${item.date}.`,
+      nextSteps: [
+        `Contact your bank and request a courtesy waiver for this $${item.amount.toFixed(2)} fee — first-time waivers are common.`,
+        `Check if your account type should waive this fee based on your balance or activity.`,
+        `If fees are recurring, consider switching to a no-fee account or a different bank.`,
+        `If the fee seems like an error, file a formal dispute through your bank's app or website.`,
+      ],
+    }));
+}
+
+function medicalBillingAnalyzer(transactions) {
+  const medicalPatterns = /hospital|clinic|medical|dental|vision|pharmacy|lab|physician|urgent care|imaging|radiolog|health partner|wellness center|chiro|physical therap|optometr|pediatr|dermatolog|cardiolog|orthoped/;
+  const medicalTxns = transactions.filter((t) => medicalPatterns.test(t.merchantKey) || medicalPatterns.test(t.category));
+  if (medicalTxns.length === 0) return [];
+  const amounts = medicalTxns.map((t) => t.amount);
+  const typical = median(amounts);
+  return medicalTxns
+    .filter((item) => item.amount >= 150)
+    .filter((item) => {
+      const unusual = typical > 0 && item.amount > typical * 2;
+      const isHigh = item.amount >= 500;
+      return unusual || isHigh;
+    })
+    .slice(0, 5)
+    .map((item) => {
+      const unusual = typical > 0 && item.amount > typical * 2;
+      return {
+        type: "medical",
+        title: item.merchant,
+        merchant: item.merchant,
+        badge: unusual ? "Unusual medical charge" : "Medical charge flagged",
+        amount: item.amount,
+        date: item.date,
+        reason: unusual
+          ? `This $${item.amount.toFixed(2)} charge is significantly higher than your typical medical-related charges (median: $${Math.round(typical)}).`
+          : `A $${item.amount.toFixed(2)} medical-related charge was detected on ${item.date}.`,
+        nextSteps: [
+          `Request an itemized bill from ${item.merchant} and review every line item carefully.`,
+          `Compare the charge against your explanation of benefits (EOB) from your insurer.`,
+          `If amounts don't match or services seem incorrect, contact the provider's billing office.`,
+          `File an appeal with your insurer if the charge was denied or adjusted.`,
+        ],
+      };
+    });
+}
+
+export function extractResearchTargets(rawTransactions) {
+  const merchants = [...new Set(
+    rawTransactions
+      .filter((t) => !t.pending && Number(t.amount) > 5)
+      .map((t) => t.merchant_name || t.name)
+      .filter(Boolean)
+      .map((m) => m.trim())
+  )].slice(0, 25);
+
+  const payrollPatterns = /payroll|direct deposit|salary|pay check|paycheck|employer deposit|pay roll/;
+  const employers = [...new Set(
+    rawTransactions
+      .filter((t) => Number(t.amount) < 0 && (payrollPatterns.test(t.name || "") || payrollPatterns.test(t.merchant_name || "")))
+      .map((t) => (t.merchant_name || t.name || "").replace(/payroll|direct deposit|salary|pay check|paycheck|employer deposit|pay roll/gi, "").trim())
+      .filter(Boolean)
+      .filter((name) => name.length > 2)
+  )].slice(0, 5);
+
+  return { merchants, employers };
+}
+
+export function mergeResearchFindings(baseResult, research) {
+  if (!research?.opportunities?.length) return baseResult;
+
+  const mapped = research.opportunities.filter(Boolean).map((opp) => {
+    if (opp.category === "settlement") {
+      return {
+        type: "settlement",
+        title: opp.title || `${opp.merchant} settlement opportunity`,
+        merchant: opp.merchant,
+        badge: "Settlement opportunity",
+        amount: opp.potential_amount || 0,
+        reason: opp.description,
+        deadline: opp.deadline,
+        sourceUrl: opp.source_url,
+        nextSteps: (opp.next_steps && opp.next_steps.length) ? opp.next_steps : [
+          `Review the settlement details${opp.source_url ? ` at ${opp.source_url}` : " on the official settlement website"}.`,
+          `Check if you're eligible based on your purchase history with ${opp.merchant}.`,
+          `File a claim before the deadline${opp.deadline ? ` on ${opp.deadline}` : ""}.`,
+          `Keep your proof of purchase or bank statements as evidence.`,
+        ],
+      };
+    }
+    if (opp.category === "recall") {
+      return {
+        type: "recall",
+        title: opp.title || `${opp.merchant} product recall`,
+        merchant: opp.merchant,
+        badge: "Product recall",
+        reason: opp.description,
+        sourceUrl: opp.source_url,
+        nextSteps: (opp.next_steps && opp.next_steps.length) ? opp.next_steps : [
+          `Check if your product is affected${opp.source_url ? ` at ${opp.source_url}` : " on the recall website"}.`,
+          `Follow the manufacturer's instructions for repair, replacement, or refund.`,
+          `Keep your proof of purchase for any claim.`,
+          `Stop using the product immediately if there's a safety concern.`,
+        ],
+      };
+    }
+    if (opp.category === "wage") {
+      return {
+        type: "wage",
+        title: opp.title || `${opp.merchant} wage-related opportunity`,
+        merchant: opp.merchant,
+        badge: "Wage-related opportunity",
+        amount: opp.potential_amount || 0,
+        reason: opp.description,
+        sourceUrl: opp.source_url,
+        nextSteps: (opp.next_steps && opp.next_steps.length) ? opp.next_steps : [
+          `Review the details${opp.source_url ? ` at ${opp.source_url}` : " at the official source"}.`,
+          `Check if you're eligible based on your employment history.`,
+          `File a claim or contact the relevant labor board if applicable.`,
+          `Keep records of your employment dates and pay stubs.`,
+        ],
+      };
+    }
+    return null;
+  }).filter(Boolean);
+
+  const settlementFindings = mapped.filter((f) => f.type === "settlement");
+  const recallFindings = mapped.filter((f) => f.type === "recall");
+  const additionalRecovery = [...settlementFindings, ...mapped.filter((f) => f.type === "wage")].reduce((sum, f) => sum + (f.amount || 0), 0);
+
+  return {
+    ...baseResult,
+    summary: {
+      ...baseResult.summary,
+      potentialRecovery: (baseResult.summary.potentialRecovery || 0) + additionalRecovery,
+    },
+    findings: [...baseResult.findings, ...mapped],
+    modules: { settlements: settlementFindings, productAlerts: recallFindings },
+  };
 }
 
 export function analyzeTransactions(transactions, accounts) {
@@ -96,8 +280,14 @@ export function analyzeTransactions(transactions, accounts) {
   const recurringFindings = [...subscriptionAnalyzer(recurring), ...billAnalyzer(recurring)];
   const increases = priceIncreaseAnalyzer(recurring);
   const duplicates = overchargeAnalyzer(normalized);
+  const fees = bankFeeAnalyzer(normalized);
+  const medical = medicalBillingAnalyzer(normalized);
   const recurringAnnual = recurringFindings.reduce((sum, item) => sum + item.annualCost, 0);
   const potentialSavings = increases.reduce((sum, item) => sum + item.annualImpact, 0);
-  const potentialRecovery = duplicates.reduce((sum, item) => sum + item.recovery, 0);
-  return { summary: { currentRecurringSpending: recurringAnnual, potentialSavings, potentialRecovery, transactionsAnalyzed: normalized.length, accountsAnalyzed: accounts.length }, findings: [...increases, ...duplicates, ...recurringFindings], modules: { settlements: [], productAlerts: [] } };
+  const potentialRecovery = duplicates.reduce((sum, item) => sum + item.recovery, 0) + fees.reduce((sum, item) => sum + item.recovery, 0);
+  return {
+    summary: { currentRecurringSpending: recurringAnnual, potentialSavings, potentialRecovery, transactionsAnalyzed: normalized.length, accountsAnalyzed: accounts.length },
+    findings: [...increases, ...duplicates, ...fees, ...medical, ...recurringFindings],
+    modules: { settlements: [], productAlerts: [] },
+  };
 }

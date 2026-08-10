@@ -1,6 +1,9 @@
 const money = (value) => `$${(value || 0).toFixed(0)}`;
 
 export function getActionSteps(finding) {
+  if (finding.nextSteps && finding.nextSteps.length > 0) {
+    return finding.nextSteps;
+  }
   switch (finding.type) {
     case "subscription":
     case "bill":
@@ -25,6 +28,41 @@ export function getActionSteps(finding) {
         `Contact ${finding.merchant} directly and request a refund for the duplicate.`,
         `If the merchant doesn't resolve it within 5 business days, dispute the charge with your bank.`,
         `Reference both transaction dates when filing the dispute.`,
+      ];
+    case "fee":
+      return [
+        `Contact your bank and request a courtesy waiver for this $${finding.amount} fee.`,
+        `Check if your account type should waive this fee based on your balance or activity.`,
+        `If fees are recurring, consider switching to a no-fee account.`,
+        `If the fee seems like an error, file a formal dispute with your bank.`,
+      ];
+    case "medical":
+      return [
+        `Request an itemized bill from ${finding.merchant} and review every line item.`,
+        `Compare the charge against your explanation of benefits (EOB) from your insurer.`,
+        `If amounts don't match or services seem incorrect, contact the provider's billing office.`,
+        `File an appeal with your insurer if the charge was denied or adjusted.`,
+      ];
+    case "settlement":
+      return [
+        `Review the settlement details${finding.sourceUrl ? ` at ${finding.sourceUrl}` : " on the official settlement website"}.`,
+        `Check if you're eligible based on your purchase history.`,
+        `File a claim before the deadline${finding.deadline ? ` on ${finding.deadline}` : ""}.`,
+        `Keep your proof of purchase or bank statements as evidence.`,
+      ];
+    case "recall":
+      return [
+        `Check if your product is affected${finding.sourceUrl ? ` at ${finding.sourceUrl}` : " on the recall website"}.`,
+        `Follow the manufacturer's instructions for repair, replacement, or refund.`,
+        `Keep your proof of purchase for any claim.`,
+        `Stop using the product immediately if there's a safety concern.`,
+      ];
+    case "wage":
+      return [
+        `Review the details${finding.sourceUrl ? ` at ${finding.sourceUrl}` : " at the official source"}.`,
+        `Check if you're eligible based on your employment history.`,
+        `File a claim or contact the relevant labor board if applicable.`,
+        `Keep records of your employment dates and pay stubs.`,
       ];
     default:
       return ["Review this finding and contact the merchant if needed."];
