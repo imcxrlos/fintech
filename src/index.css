@@ -177,4 +177,13 @@
   .legal-copy strong {
     @apply font-semibold text-foreground;
   }
+  .legal-copy ul {
+    @apply list-disc pl-6 space-y-2;
+  }
+  .legal-copy a {
+    @apply text-primary underline underline-offset-2 hover:opacity-80;
+  }
+  .legal-copy p + ul {
+    @apply -mt-2;
+  }
 }
