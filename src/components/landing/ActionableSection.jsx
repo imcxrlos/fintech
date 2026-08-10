@@ -39,12 +39,12 @@ export default function ActionableSection() {
         </div>
 
         <div ref={sectionRef} style={{ height: `${elements.length * 65}vh` }}>
-          <div className="sticky top-0 flex min-h-screen flex-col justify-center py-16">
+          <div className="sticky top-0 flex min-h-screen flex-col justify-center">
             <div className="relative">
-              <div className="absolute left-[7px] top-2 h-[calc(100%-1rem)] w-0.5 bg-foreground/10" />
+              <div className="absolute left-[11px] top-3 bottom-3 w-0.5 bg-foreground/10" />
               <motion.div
                 style={{ scaleY: lineScale }}
-                className="absolute left-[7px] top-2 h-[calc(100%-1rem)] w-0.5 origin-top bg-primary"
+                className="absolute left-[11px] top-3 bottom-3 w-0.5 origin-top bg-primary"
               />
               {elements.map((item, i) => {
                 const isActive = i === activeIndex;
@@ -54,40 +54,40 @@ export default function ActionableSection() {
                     key={item.label}
                     initial={false}
                     animate={{
-                      opacity: isActive ? 1 : isPassed ? 0.35 : 0.18,
-                      scale: isActive ? 1 : 0.97,
+                      opacity: isActive ? 1 : isPassed ? 0.4 : 0.2,
+                      scale: isActive ? 1 : 0.96,
                     }}
                     transition={{ duration: 0.7, ease: EASE }}
-                    className="relative mb-3 pl-10"
+                    className={`relative mb-4 pl-12`}
                   >
                     <div
-                      className={`absolute left-0 top-4 flex h-4 w-4 items-center justify-center rounded-full border-2 transition-all duration-700 ${
+                      className={`absolute left-0 top-6 flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-all duration-700 ${
                         isActive
-                          ? "border-primary bg-primary text-background scale-125 shadow-[0_0_14px_hsl(var(--primary)/0.5)]"
+                          ? "border-2 border-primary bg-primary text-background shadow-[0_0_18px_hsl(var(--primary)/0.45)]"
                           : isPassed
-                            ? "border-primary/40 bg-primary/10 text-primary/50"
-                            : "border-foreground/15 bg-background text-foreground/30"
+                            ? "border-2 border-primary/40 bg-primary/10 text-primary/50"
+                            : "border-2 border-foreground/15 bg-background text-foreground/30"
                       }`}
                     >
                       {i + 1}
                     </div>
                     <div
-                      className={`rounded-2xl border p-5 backdrop-blur-2xl transition-all duration-700 ${
+                      className={`rounded-3xl border transition-all duration-700 ${
                         isActive
-                          ? "border-primary/30 bg-white/85 shadow-[0_18px_52px_-14px_rgba(0,0,0,0.24)]"
+                          ? "border-primary/25 bg-white/90 p-7 shadow-[0_24px_64px_-20px_rgba(0,0,0,0.28)]"
                           : isPassed
-                            ? "border-white/50 bg-white/45 shadow-[0_8px_28px_-14px_rgba(0,0,0,0.14)]"
-                            : "border-white/60 bg-white/55 shadow-[0_10px_36px_-14px_rgba(0,0,0,0.18)]"
+                            ? "border-white/50 bg-white/50 p-6 shadow-[0_10px_32px_-16px_rgba(0,0,0,0.16)]"
+                            : "border-white/60 bg-white/55 p-6 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.2)]"
                       }`}
                     >
                       <h3
-                        className={`font-heading text-xl font-medium transition-colors duration-700 ${
+                        className={`font-heading text-2xl font-medium transition-colors duration-700 ${
                           isActive ? "text-primary" : "text-foreground"
                         }`}
                       >
                         {item.label}
                       </h3>
-                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                      <p className="mt-2 text-base leading-7 text-muted-foreground">{item.description}</p>
                     </div>
                   </motion.div>
                 );
