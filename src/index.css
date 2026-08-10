@@ -144,6 +144,7 @@
 }
 
 .animate-scan-fade-in { animation: scan-fade-in 0.28s ease-out both; }
+.animate-scan-fade-out { animation: scan-fade-in 0.26s ease-in both reverse; }
 .animate-scan-rise { animation: scan-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @keyframes visual-float {
