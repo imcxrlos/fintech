@@ -4,14 +4,14 @@ const CLOUD_IMG = "https://media.base44.com/images/public/6a78f94b469a2985507520
 
 export default function CloudBackdrop() {
   const clouds = [
-    { top: "3%", left: "2%", width: "380px", opacity: 0.85 },
-    { top: "10%", left: "55%", width: "300px", opacity: 0.7 },
-    { top: "28%", left: "20%", width: "260px", opacity: 0.6 },
-    { top: "35%", left: "70%", width: "340px", opacity: 0.75 },
-    { top: "52%", left: "8%", width: "320px", opacity: 0.65 },
-    { top: "60%", left: "50%", width: "280px", opacity: 0.55 },
-    { top: "72%", left: "25%", width: "360px", opacity: 0.6 },
-    { top: "82%", left: "60%", width: "300px", opacity: 0.5 },
+    { top: "2%", left: "1%", width: "380px", opacity: 0.85 },
+    { top: "14%", left: "58%", width: "300px", opacity: 0.7 },
+    { top: "34%", left: "18%", width: "260px", opacity: 0.6 },
+    { top: "40%", left: "72%", width: "340px", opacity: 0.75 },
+    { top: "58%", left: "6%", width: "320px", opacity: 0.65 },
+    { top: "64%", left: "50%", width: "280px", opacity: 0.55 },
+    { top: "76%", left: "22%", width: "360px", opacity: 0.6 },
+    { top: "86%", left: "60%", width: "300px", opacity: 0.5 },
   ];
 
   return (
