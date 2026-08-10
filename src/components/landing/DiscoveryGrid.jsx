@@ -49,7 +49,7 @@ export default function DiscoveryGrid() {
           The things you'd never think to check.
         </h2>
         <div className="mt-14 flex justify-center">
-          <div className="relative aspect-[4/5] w-full max-w-sm select-none">
+          <div className="relative aspect-[4/5] w-full max-w-sm select-none overflow-hidden">
             <AnimatePresence>
               {stack.map(({ key, card, offset }) => (
                 <motion.div

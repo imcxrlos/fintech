@@ -84,12 +84,19 @@
 
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  html,
+  body {
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
+    background-color: #ffffff;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
   }
 
   ::selection {
