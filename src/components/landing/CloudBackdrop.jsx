@@ -7,12 +7,12 @@ export default function CloudBackdrop() {
     { top: "4%", left: "-6%", width: "240px", opacity: 0.8, mobile: true },
     { top: "38%", left: "52%", width: "210px", opacity: 0.65, mobile: true },
     { top: "74%", left: "-4%", width: "230px", opacity: 0.55, mobile: true },
-    { top: "14%", left: "58%", width: "300px", opacity: 0.7, mobile: false },
-    { top: "34%", left: "18%", width: "260px", opacity: 0.6, mobile: false },
-    { top: "40%", left: "72%", width: "340px", opacity: 0.75, mobile: false },
-    { top: "58%", left: "6%", width: "320px", opacity: 0.65, mobile: false },
-    { top: "64%", left: "50%", width: "280px", opacity: 0.55, mobile: false },
-    { top: "86%", left: "60%", width: "300px", opacity: 0.5, mobile: false },
+    { top: "12%", left: "60%", width: "280px", opacity: 0.7, mobile: false },
+    { top: "22%", left: "4%", width: "260px", opacity: 0.6, mobile: false },
+    { top: "26%", left: "66%", width: "300px", opacity: 0.65, mobile: false },
+    { top: "50%", left: "8%", width: "320px", opacity: 0.6, mobile: false },
+    { top: "56%", left: "62%", width: "280px", opacity: 0.7, mobile: false },
+    { top: "84%", left: "58%", width: "300px", opacity: 0.5, mobile: false },
   ];
 
   return (
