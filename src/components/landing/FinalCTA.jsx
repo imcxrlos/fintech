@@ -4,7 +4,7 @@ import GlowButton from "@/components/landing/GlowButton";
 
 export default function FinalCTA({ onStart }) {
   return (
-    <section className="relative z-10 border-t border-foreground/10 px-5 py-24 lg:px-8 lg:py-40">
+    <section className="relative z-10 px-5 py-24 lg:px-8 lg:py-40">
       <div className="mx-auto max-w-4xl text-center">
         <h2 className="font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
           See what we found.

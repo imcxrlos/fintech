@@ -1,5 +1,6 @@
 import React from "react";
-import { Check, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Check, X, ArrowRight } from "lucide-react";
 
 const diyTasks = [
   "Search transactions",
@@ -17,7 +18,7 @@ const weDo = [
 
 export default function ComparisonSection() {
   return (
-    <section className="relative z-10 border-t border-foreground/10 px-5 py-24 lg:px-8 lg:py-32">
+    <section className="relative z-10 px-5 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">The alternative</p>
         <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
@@ -29,33 +30,77 @@ export default function ComparisonSection() {
         <p className="mt-8 font-heading text-3xl text-foreground sm:text-4xl">
           Instead, we'll do the searching for you.
         </p>
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/50 bg-white/40 p-8 shadow-[0_12px_48px_-16px_rgba(0,0,0,0.12)] backdrop-blur-2xl sm:p-10">
+
+        <div className="mt-14 flex flex-col items-stretch gap-4 lg:flex-row lg:items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 rounded-3xl border border-white/60 bg-white/55 p-8 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
+          >
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-muted-foreground">Doing it yourself</h3>
             <ul className="mt-6 space-y-4">
-              {diyTasks.map((task) => (
-                <li key={task} className="flex items-center gap-3 text-lg text-muted-foreground">
+              {diyTasks.map((task, i) => (
+                <motion.li
+                  key={task}
+                  initial={{ opacity: 0, x: -15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.1 + i * 0.06 }}
+                  className="flex items-center gap-3 text-lg text-muted-foreground"
+                >
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
                     <X className="h-3 w-3" strokeWidth={2.5} />
                   </span>
                   {task}
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
-          <div className="rounded-3xl border border-primary/30 bg-primary/5 p-8 shadow-[0_12px_48px_-16px_rgba(0,0,0,0.12)] backdrop-blur-2xl sm:p-10">
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.4 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="flex justify-center py-1 lg:py-0"
+          >
+            <motion.div
+              animate={{ x: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+              className="rotate-90 lg:rotate-0"
+            >
+              <ArrowRight className="h-7 w-7 text-primary" strokeWidth={2} />
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 rounded-3xl border border-primary/30 bg-primary/10 p-8 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
+          >
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-primary">Let us find it</h3>
             <ul className="mt-6 space-y-4">
-              {weDo.map((item) => (
-                <li key={item} className="flex items-center gap-3 text-lg font-medium text-foreground">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15">
+              {weDo.map((item, i) => (
+                <motion.li
+                  key={item}
+                  initial={{ opacity: 0, x: 15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.3 + i * 0.1 }}
+                  className="flex items-center gap-3 text-lg font-medium text-foreground"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20">
                     <Check className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
                   </span>
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
