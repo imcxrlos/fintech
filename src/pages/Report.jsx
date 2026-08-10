@@ -104,7 +104,7 @@ export default function Report() {
       <main className="mx-auto max-w-4xl px-5 pb-24 pt-4 lg:px-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Your saved report</p>
-          <h1 className="mt-3 font-heading text-5xl font-semibold tracking-tight">Your Money Report</h1>
+          <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Your Money Report</h1>
           <p className="mt-3 text-muted-foreground">{report.summary.transactionsAnalyzed} transactions across {report.summary.accountsAnalyzed} connected accounts analyzed.</p>
         </div>
 
@@ -127,9 +127,9 @@ export default function Report() {
         {!report.is_paid ? (
           <section className="mt-12 rounded-[2rem] border-2 border-primary/20 bg-primary/5 p-7 sm:p-10">
             {showSavingsCTA ? (
-              <h2 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Would you save {money(totalSavings)} for $5?</h2>
+              <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">Would you save {money(totalSavings)} for $5?</h2>
             ) : (
-              <h2 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Get your full report for $5.</h2>
+              <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">Get your full report for $5.</h2>
             )}
             <p className="mt-3 max-w-2xl text-muted-foreground">Get the full breakdown and the exact action steps for every opportunity we found.</p>
             <ul className="mt-7 grid gap-3 sm:grid-cols-2">

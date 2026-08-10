@@ -18,16 +18,16 @@ const weDo = [
 
 export default function ComparisonSection() {
   return (
-    <section className="relative z-10 px-5 py-24 lg:px-8 lg:py-32">
+    <section className="relative z-10 px-5 py-16 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">The alternative</p>
-        <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
+        <h2 className="mt-5 font-heading text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl">
           You could spend hours looking for this yourself.
         </h2>
-        <p className="mt-8 max-w-3xl text-lg leading-8 text-muted-foreground">
+        <p className="mt-6 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8">
           You'd have to search your transactions, check old bills, remember what you subscribed to, search settlement databases, research recalls, and figure out which charges actually matter.
         </p>
-        <p className="mt-8 font-heading text-3xl text-foreground sm:text-4xl">
+        <p className="mt-6 font-heading text-2xl text-foreground sm:mt-8 sm:text-3xl">
           Instead, we'll do the searching for you.
         </p>
 
@@ -37,7 +37,7 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-1 rounded-3xl border border-white/60 bg-white/55 p-8 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
+            className="flex-1 rounded-3xl border border-white/60 bg-white/55 p-6 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
           >
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-muted-foreground">Doing it yourself</h3>
             <ul className="mt-6 space-y-4">
@@ -48,7 +48,7 @@ export default function ComparisonSection() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: 0.1 + i * 0.06 }}
-                  className="flex items-center gap-3 text-lg text-muted-foreground"
+                  className="flex items-center gap-3 text-base text-muted-foreground sm:text-lg"
                 >
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
                     <X className="h-3 w-3" strokeWidth={2.5} />
@@ -80,7 +80,7 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-1 rounded-3xl border border-primary/30 bg-primary/10 p-8 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
+            className="flex-1 rounded-3xl border border-primary/30 bg-primary/10 p-6 shadow-[0_16px_56px_-16px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:p-10"
           >
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-primary">Let us find it</h3>
             <ul className="mt-6 space-y-4">

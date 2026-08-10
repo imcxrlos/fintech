@@ -45,7 +45,7 @@ export default function DiscoveryGrid() {
     <section className="relative z-10 px-5 py-12 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">What we search for</p>
-        <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
+        <h2 className="mt-5 font-heading text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl">
           The things you'd never think to check.
         </h2>
         <div className="mt-14 flex justify-center">
