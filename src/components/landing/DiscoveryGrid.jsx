@@ -1,5 +1,5 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const categories = [
   { title: "Bank fees", description: "Find fees and recurring charges that may be worth questioning." },
@@ -14,6 +14,33 @@ const categories = [
 ];
 
 export default function DiscoveryGrid() {
+  const [index, setIndex] = useState(0);
+  const [exitDir, setExitDir] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setExitDir(1);
+      setIndex((i) => i + 1);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [index]);
+
+  const handleDragEnd = (_, info) => {
+    if (info.offset.x > 100 || info.velocity.x > 500) {
+      setExitDir(1);
+      setIndex((i) => i + 1);
+    } else if (info.offset.x < -100 || info.velocity.x < -500) {
+      setExitDir(-1);
+      setIndex((i) => i + 1);
+    }
+  };
+
+  const stack = [0, 1, 2].map((offset) => ({
+    key: index + offset,
+    card: categories[(index + offset) % categories.length],
+    offset,
+  }));
+
   return (
     <section className="relative z-10 px-5 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-2xl">
@@ -21,24 +48,36 @@ export default function DiscoveryGrid() {
         <h2 className="mt-6 font-heading text-5xl leading-[1.04] tracking-[-0.035em] sm:text-6xl">
           The things you'd never think to check.
         </h2>
-        <div className="mt-14">
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.title}
-              initial={{ opacity: 0, y: 36 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.4, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-              style={{ zIndex: categories.length - i }}
-              className={`relative flex items-start gap-5 rounded-2xl border border-white/60 bg-white/60 p-6 shadow-[0_10px_36px_-14px_rgba(0,0,0,0.18)] backdrop-blur-2xl ${i > 0 ? "-mt-4" : ""}`}
-            >
-              <span className="font-heading text-3xl leading-none text-primary/25">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <h3 className="font-heading text-lg font-medium text-foreground">{cat.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">{cat.description}</p>
-              </div>
-            </motion.div>
-          ))}
+        <div className="mt-14 flex justify-center">
+          <div className="relative aspect-[4/5] w-full max-w-sm select-none">
+            <AnimatePresence>
+              {stack.map(({ key, card, offset }) => (
+                <motion.div
+                  key={key}
+                  initial={{ scale: 0.9, y: 24, opacity: 0 }}
+                  animate={{ scale: 1 - offset * 0.05, y: offset * 14, opacity: 1 }}
+                  exit={{ x: exitDir * 400, opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
+                  drag={offset === 0}
+                  dragSnapToOrigin={offset === 0}
+                  dragElastic={0.7}
+                  onDragEnd={offset === 0 ? handleDragEnd : undefined}
+                  style={{ zIndex: 10 - offset }}
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-[2rem] border border-white/60 bg-white/60 p-8 text-center shadow-[0_16px_56px_-16px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:p-10"
+                >
+                  <span className="font-heading text-sm text-muted-foreground/40">
+                    {String((key % categories.length) + 1).padStart(2, "0")} / {String(categories.length).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-4 font-heading text-3xl font-medium leading-tight text-foreground sm:text-4xl">
+                    {card.title}
+                  </h3>
+                  <p className="mt-3 text-base leading-7 text-muted-foreground">
+                    {card.description}
+                  </p>
+                  <span className="mt-6 text-xs text-muted-foreground/40">Swipe →</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
