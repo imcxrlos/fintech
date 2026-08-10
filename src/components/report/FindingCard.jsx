@@ -1,6 +1,5 @@
 import React from "react";
 import { ArrowUpRight, CalendarRange, ExternalLink, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
 
@@ -10,9 +9,10 @@ export default function FindingCard({ finding }) {
   const hasRecovery = finding.recovery !== undefined && finding.recovery > 0;
   const hasDeadline = finding.deadline;
   const hasSource = finding.sourceUrl;
+  const hasDate = !recurring && finding.date;
 
   return (
-    <article className="rounded-2xl border bg-card p-5 sm:p-6">
+    <article className="rounded-3xl border border-foreground/10 bg-card p-6 shadow-[0_16px_56px_-20px_rgba(0,0,0,0.16)] sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{finding.badge}</span>
@@ -45,7 +45,7 @@ export default function FindingCard({ finding }) {
         </details>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-4 border-t pt-4 text-sm">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-foreground/10 pt-4 text-sm">
         {recurring && (
           <>
             <span>{money(finding.annualCost)}/year</span>
@@ -54,6 +54,12 @@ export default function FindingCard({ finding }) {
               {finding.firstObserved} – {finding.lastObserved}
             </span>
           </>
+        )}
+        {hasDate && (
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <CalendarRange className="h-4 w-4" />
+            {finding.date}
+          </span>
         )}
         {finding.annualImpact && <span>Estimated annual impact: <strong className="text-foreground">+{money(finding.annualImpact)}</strong></span>}
         {hasRecovery && !recurring && <span>Potential recovery: <strong className="text-foreground">{money(finding.recovery)}</strong></span>}

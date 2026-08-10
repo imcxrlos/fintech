@@ -123,10 +123,56 @@ function overchargeAnalyzer(transactions) {
 }
 
 function bankFeeAnalyzer(transactions) {
-  const feePatterns = /\bfee\b|overdraft|\bnsf\b|insufficient fund|maintenance|service charge|\batm\b|late fee|monthly fee|annual fee|foreign transaction|wire fee|statement fee|replacement fee|excess activity|minimum balance|return item/;
-  return transactions
-    .filter((t) => feePatterns.test(t.merchantKey) || feePatterns.test(cleanMerchant(t.description)))
-    .map((item) => ({
+  const feePatterns = /\bfee\b|overdraft|\bnsf\b|insufficient fund|maintenance|service charge|\batm\b|late fee|monthly fee|annual fee|foreign transaction|wire fee|statement fee|replacement fee|excess activity|minimum balance|return item|paper statement|account fee/;
+  const feeTxns = transactions.filter((t) => feePatterns.test(t.merchantKey) || feePatterns.test(cleanMerchant(t.description)));
+  if (feeTxns.length === 0) return [];
+
+  // Group identical fees (same merchant + exact amount) to surface recurring overcharging
+  const groups = {};
+  feeTxns.forEach((t) => {
+    const key = `${t.merchantKey}__${t.amount.toFixed(2)}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(t);
+  });
+
+  const findings = [];
+  const oneOffFees = [];
+
+  Object.values(groups).forEach((items) => {
+    items.sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (items.length >= 2) {
+      const total = items.reduce((sum, t) => sum + t.amount, 0);
+      const merchant = items[0].merchant;
+      const intervals = items.slice(1).map((item, index) => daysBetween(item.date, items[index].date));
+      const typicalInterval = intervals.length ? median(intervals) : 0;
+      const frequency = typicalInterval >= 330 ? "annual" : typicalInterval >= 24 && typicalInterval <= 40 ? "monthly" : typicalInterval >= 5 && typicalInterval <= 10 ? "weekly" : null;
+      const annualImpact = frequency ? Math.round(total * (yearlyMultiplier[frequency] / items.length)) : Math.round(total);
+      findings.push({
+        type: "fee",
+        title: merchant,
+        merchant,
+        badge: "Recurring bank fee",
+        amount: items[items.length - 1].amount,
+        date: items[items.length - 1].date,
+        recovery: total,
+        count: items.length,
+        annualImpact,
+        frequency,
+        reason: `Your bank charged ${items.length} of these fees totaling $${total.toFixed(2)} — a recurring pattern of charges worth questioning.`,
+        nextSteps: [
+          `Contact your bank and request courtesy waivers for these ${items.length} fees — banks often refund recurring charges for customers in good standing.`,
+          `Ask why these fees are being charged and whether your account type should waive them based on your balance or activity.`,
+          `If these are maintenance or minimum-balance fees, ask about switching to a no-fee account tier.`,
+          `If the bank won't adjust, consider moving to a no-fee bank — these recurring fees cost roughly $${annualImpact} per year.`,
+        ],
+      });
+    } else {
+      oneOffFees.push(items[0]);
+    }
+  });
+
+  oneOffFees.slice(0, 6).forEach((item) => {
+    findings.push({
       type: "fee",
       title: item.merchant,
       merchant: item.merchant,
@@ -141,7 +187,10 @@ function bankFeeAnalyzer(transactions) {
         `If fees are recurring, consider switching to a no-fee account or a different bank.`,
         `If the fee seems like an error, file a formal dispute through your bank's app or website.`,
       ],
-    }));
+    });
+  });
+
+  return findings;
 }
 
 function medicalBillingAnalyzer(transactions) {
