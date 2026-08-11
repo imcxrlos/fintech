@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Check, Loader2, FileText, LogOut, ArrowLeft } from "lucide-react";
+import { Check, Loader2, FileText, LogOut, ArrowLeft, Download, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import GlowButton from "@/components/landing/GlowButton";
 import ReportSummary from "@/components/report/ReportSummary";
 import FindingCard from "@/components/report/FindingCard";
 import { getActionSteps } from "@/lib/findingActions";
+import { downloadReportPdf } from "@/lib/reportPdf";
 
 const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
 
@@ -36,6 +38,7 @@ export default function Report() {
             summary: data.summary,
             findings: data.findings,
             potential_savings: totalSavings,
+            is_paid: data.is_paid || false,
           });
           sessionStorage.removeItem("pendingReport");
           setReport(saved);
@@ -107,6 +110,17 @@ export default function Report() {
           <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Your Money Report</h1>
           <p className="mt-3 text-muted-foreground">{report.summary.transactionsAnalyzed} transactions across {report.summary.accountsAnalyzed} connected accounts analyzed.</p>
         </div>
+
+        {report.is_paid && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            <GlowButton onClick={() => downloadReportPdf(report)}>
+              <Download className="h-4 w-4" /> Download PDF
+            </GlowButton>
+            <Button variant="outline" onClick={() => navigate("/")}>
+              <Plus className="h-4 w-4" /> New scan
+            </Button>
+          </div>
+        )}
 
         <div className="mt-10"><ReportSummary summary={report.summary} /></div>
 

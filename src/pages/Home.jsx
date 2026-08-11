@@ -1,10 +1,9 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import LandingHeader from "@/components/landing/LandingHeader";
 import Hero from "@/components/landing/Hero";
 import ScanModal from "@/components/scan/ScanModal";
-import PreviewDashboard from "@/components/report/PreviewDashboard";
+import SaveFlow from "@/components/saveflow/SaveFlow";
 import MoneyHidingSection from "@/components/landing/MoneyHidingSection";
 import DiscoveryGrid from "@/components/landing/DiscoveryGrid";
 import ComparisonSection from "@/components/landing/ComparisonSection";
@@ -14,17 +13,12 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import CloudBackdrop from "@/components/landing/CloudBackdrop";
 
 export default function Home() {
-  const navigate = useNavigate();
   const [scanOpen, setScanOpen] = useState(false);
   const [stage, setStage] = useState("ready");
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
+  const [reportAuthed, setReportAuthed] = useState(false);
   const linkTokenRef = useRef(null);
-
-  const saveReportAndRedirect = (path) => {
-    sessionStorage.setItem("pendingReport", JSON.stringify(report));
-    navigate(path);
-  };
 
   const ensureLinkToken = () => {
     if (!linkTokenRef.current) {
@@ -52,13 +46,18 @@ export default function Home() {
             const authed = await base44.auth.isAuthenticated();
             if (authed) {
               const totalSavings = (result.data.summary.potentialSavings || 0) + (result.data.summary.potentialRecovery || 0);
-              await base44.entities.Report.create({
+              const saved = await base44.entities.Report.create({
                 summary: result.data.summary,
                 findings: result.data.findings,
                 potential_savings: totalSavings,
               });
-              navigate("/report");
+              setReportAuthed(true);
+              setReport(saved);
+              setScanOpen(false);
+              setStage("ready");
+              window.scrollTo({ top: 0, behavior: "smooth" });
             } else {
+              setReportAuthed(false);
               setReport(result.data);
               setScanOpen(false);
               setStage("ready");
@@ -84,22 +83,10 @@ export default function Home() {
   const begin = () => { setError(""); setScanOpen(true); ensureLinkToken(); };
   const reset = () => { setReport(null); setScanOpen(true); };
 
-  const handleCreateAccount = () => saveReportAndRedirect("/register?returnTo=/report");
-  const handleSignIn = () => saveReportAndRedirect("/login?returnTo=/report");
-  const handlePurchase = () => saveReportAndRedirect("/register?returnTo=/report");
-
   return (
     <div className="min-h-screen" style={{ background: "#ffffff" }}>
       {report ? (
-        <>
-          <LandingHeader onStart={begin} />
-          <PreviewDashboard
-            report={report}
-            onCreateAccount={handleCreateAccount}
-            onSignIn={handleSignIn}
-            onPurchase={handlePurchase}
-          />
-        </>
+        <SaveFlow report={report} authed={reportAuthed} onRestart={reset} />
       ) : (
         <div className="relative">
           <CloudBackdrop />
