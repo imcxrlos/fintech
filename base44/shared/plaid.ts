@@ -12,8 +12,13 @@ export function getEnvironment() {
   return environment;
 }
 
-export function getWebhookUrl() {
-  return secrets.get("PLAID_WEBHOOK_URL") || "";
+export function deriveWebhookUrl(req) {
+  try {
+    const url = new URL(req.url);
+    return `${url.origin}/functions/plaidWebhook`;
+  } catch (_e) {
+    return "";
+  }
 }
 
 export async function plaidRequest(path, body) {

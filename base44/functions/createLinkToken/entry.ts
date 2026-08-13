@@ -1,4 +1,4 @@
-import { plaidRequest, getWebhookUrl } from "../../shared/plaid.ts";
+import { plaidRequest, deriveWebhookUrl } from "../../shared/plaid.ts";
 
 export default async function(req) {
   try {
@@ -13,7 +13,7 @@ export default async function(req) {
       language: "en",
     };
 
-    const webhookUrl = getWebhookUrl();
+    const webhookUrl = deriveWebhookUrl(req);
     if (webhookUrl) body.webhook = webhookUrl;
 
     const data = await plaidRequest("/link/token/create", body);
