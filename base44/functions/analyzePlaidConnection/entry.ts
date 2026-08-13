@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { plaidRequest, syncAllTransactions } from "../../shared/plaid.ts";
+import { plaidRequest, syncAllTransactions, getRecurringTransactions } from "../../shared/plaid.ts";
 import { analyzeTransactions, extractResearchTargets, mergeResearchFindings } from "../../shared/transactionAnalysis.ts";
 
 export default async function(req) {
@@ -12,7 +12,19 @@ export default async function(req) {
     const { transactions, cursor } = await syncAllTransactions(accessToken);
     const accountData = await plaidRequest("/accounts/get", { access_token: accessToken });
 
-    const baseResult = analyzeTransactions(transactions, accountData.accounts || []);
+    // Prefer Plaid's purpose-built /transactions/recurring/get when the product is enabled.
+    // If unavailable for this account, fall back silently to rules-based detection.
+    let plaidRecurring = null;
+    try {
+      const recurringResp = await getRecurringTransactions(accessToken);
+      plaidRecurring = recurringResp?.outflow_streams || [];
+      console.log("[analyzePlaidConnection] /transactions/recurring/get available —", plaidRecurring.length, "outflow streams");
+    } catch (recurringError) {
+      console.log("[analyzePlaidConnection] /transactions/recurring/get unavailable, using rules-based detection:", recurringError.message);
+      plaidRecurring = null;
+    }
+
+    const baseResult = analyzeTransactions(transactions, accountData.accounts || [], plaidRecurring);
 
     try {
       const base44 = createClientFromRequest(req);

@@ -57,6 +57,12 @@ export async function syncAllTransactions(accessToken, cursor = null) {
   return { transactions, cursor: nextCursor };
 }
 
+// Plaid's recurring-transaction streams endpoint. Returns outflow_streams when the
+// "Recurring Transactions" product is enabled on the item; throws otherwise (caught upstream).
+export async function getRecurringTransactions(accessToken) {
+  return plaidRequest("/transactions/recurring/get", { access_token: accessToken });
+}
+
 function b64urlDecode(b64url) {
   const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
   const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);

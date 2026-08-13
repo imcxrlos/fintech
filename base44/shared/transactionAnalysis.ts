@@ -4,25 +4,109 @@ const median = (values) => {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 };
 
-const cleanMerchant = (value = "Unknown merchant") => value.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\b\d{3,}\b/g, "").replace(/\s+/g, " ").trim();
 const daysBetween = (a, b) => Math.round(Math.abs(new Date(a) - new Date(b)) / 86400000);
 const yearlyMultiplier = { weekly: 52, monthly: 12, annual: 1 };
+const cleanText = (value = "") => value.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+
+// ---- Merchant normalization ----
+// Turns raw Plaid strings like "ELEVENLABS.IOELEVENLABS.IO" into "Elevenlabs"
+export function normalizeMerchantName(raw) {
+  if (!raw) return "";
+  let s = String(raw).trim();
+  // collapse exact doubled repeats (e.g. "ELEVENLABS.IOELEVENLABS.IO")
+  if (s.length >= 6 && s.length % 2 === 0) {
+    const half = s.length / 2;
+    if (s.slice(0, half).toLowerCase() === s.slice(half).toLowerCase()) s = s.slice(0, half);
+  }
+  // strip trailing domain suffixes
+  s = s.replace(/\.(io|com|net|org|co|app|ai|dev|cloud)$/i, "");
+  // collapse doubled token runs like "elevenlabs elevenlabs"
+  s = s.replace(/\b([a-z0-9]+)\s+\1\b/gi, "$1");
+  // strip stray dots between alphanumerics
+  s = s.replace(/\./g, " ");
+  s = s.replace(/[^a-zA-Z0-9 &]/g, " ").replace(/\s+/g, " ").trim();
+  // title case
+  s = s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  return s;
+}
+
+function merchantKey(raw) {
+  return normalizeMerchantName(raw).toLowerCase().replace(/\s+/g, " ").trim() || "unknown";
+}
+
+// ---- Plaid personal_finance_category signals ----
+const EXCLUDED_PF_PRIMARY = new Set([
+  "TRANSFER_IN",
+  "TRANSFER_OUT",
+  "LOAN_PAYMENTS",
+  "INCOME",
+  "BANK_FEES",
+  "REFUNDS_AND_REVERSALS",
+]);
+
+// Detailed PF categories that strongly indicate a discretionary, cancellable subscription
+const SUBSCRIPTION_PF_DETAILED = [
+  "ENTERTAINMENT_STREAMING_SERVICES",
+  "GENERAL_SERVICES_SOFTWARE_AND_APPLICATIONS",
+  "GENERAL_SERVICES_WEB_HOSTING_AND_DOMAINS",
+  "GENERAL_SERVICES_CLOUD_COMPUTING",
+  "GENERAL_SERVICES_ONLINE_SERVICES",
+  "GENERAL_SERVICES_DIGITAL_SUBSCRIPTIONS",
+];
+
+const SUBSCRIPTION_PF_PRIMARY_HINTS = ["ENTERTAINMENT", "GENERAL_SERVICES"];
+
+// Debt / payment description indicators — applied only when Plaid did not provide a merchant_name
+const DEBT_PAYMENT_PATTERN = /\b(credit\s*crd|credit card|crd pmt|card payment|loan pmt|loan|mortgage|web pay|e-pay|epay|e-payment|online payment|bill pay|balance|autopay|payment to|payment from|pay to|pmt to|transfer to|transfer from|zelle|ach transfer)\b/i;
+
+function detectExclusion(tx) {
+  const { pfPrimary, pfDetailed, hasMerchantName, rawName } = tx;
+  if (EXCLUDED_PF_PRIMARY.has(pfPrimary)) {
+    if (pfPrimary === "TRANSFER_IN" || pfPrimary === "TRANSFER_OUT") return "transfer";
+    if (pfPrimary === "LOAN_PAYMENTS") return "debt";
+    if (pfPrimary === "INCOME") return "income";
+    if (pfPrimary === "BANK_FEES") return "fee";
+    if (pfPrimary === "REFUNDS_AND_REVERSALS") return "refund";
+  }
+  // Rent / mortgage (specific detailed values only, so home security under RENT_AND_UTILITIES stays a bill)
+  if (pfPrimary === "RENT_AND_UTILITIES" && /(_RENT|_MORTGAGE)$/.test(pfDetailed || "")) return "rent_mortgage";
+  // Secondary description-based debt detection — only when no reliable merchant_name
+  if (!hasMerchantName && DEBT_PAYMENT_PATTERN.test(rawName)) return "debt";
+  return null;
+}
 
 export function normalizeTransactions(transactions, accounts) {
-  const accountMap = Object.fromEntries(accounts.map((account) => [account.account_id, `${account.name || account.official_name || "Account"} ••••${account.mask || ""}`]));
-  return transactions.filter((item) => !item.pending && Number(item.amount) > 0).map((item) => ({
-    id: item.transaction_id,
-    merchant: item.merchant_name || item.name || "Unknown merchant",
-    merchantKey: cleanMerchant(item.merchant_name || item.name),
-    amount: Number(item.amount),
-    date: item.authorized_date || item.date,
-    account: accountMap[item.account_id] || "Connected account",
-    accountId: item.account_id,
-    type: item.payment_channel || item.transaction_type || "transaction",
-    category: item.personal_finance_category?.primary || item.category?.[0] || "OTHER",
-    description: item.name || item.merchant_name || "Transaction",
-    source: "plaid",
-  })).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const accountMap = Object.fromEntries((accounts || []).map((account) => [account.account_id, account]));
+  return transactions
+    .filter((item) => !item.pending && Number(item.amount) > 0)
+    .map((item) => {
+      const acct = accountMap[item.account_id] || {};
+      const pf = item.personal_finance_category || {};
+      const merchantRaw = item.merchant_name || item.name || "";
+      const tx = {
+        id: item.transaction_id,
+        merchant: normalizeMerchantName(merchantRaw) || "Unknown merchant",
+        merchantKey: merchantKey(merchantRaw),
+        hasMerchantName: Boolean(item.merchant_name),
+        rawName: item.name || item.merchant_name || "",
+        amount: Number(item.amount),
+        date: item.authorized_date || item.date,
+        account: `${acct.name || acct.official_name || "Account"} ••••${acct.mask || ""}`,
+        accountId: item.account_id,
+        accountType: acct.type || "",
+        accountSubtype: acct.subtype || "",
+        paymentChannel: item.payment_channel || "",
+        transactionType: item.transaction_type || "",
+        pfPrimary: pf.primary || "",
+        pfDetailed: pf.detailed || "",
+        category: pf.primary || (item.category && item.category[0]) || "OTHER",
+        description: item.name || item.merchant_name || "Transaction",
+        source: "plaid",
+      };
+      tx.exclusion = detectExclusion(tx);
+      return tx;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
 function recurringPaymentDetector(transactions) {
@@ -39,46 +123,119 @@ function recurringPaymentDetector(transactions) {
     if (!frequency) return [];
     const amounts = items.map((item) => item.amount);
     const typicalAmount = median(amounts);
-    const stable = amounts.filter((amount) => Math.abs(amount - typicalAmount) / typicalAmount <= 0.25).length / amounts.length;
+    const stable = amounts.filter((amount) => typicalAmount > 0 && Math.abs(amount - typicalAmount) / typicalAmount <= 0.25).length / amounts.length;
     if (stable < 0.6) return [];
-    return [{ merchant: items.at(-1).merchant, frequency, currentAmount: items.at(-1).amount, typicalAmount, firstObserved: items[0].date, lastObserved: items.at(-1).date, count: items.length, category: items.at(-1).category, transactions: items, confidence: stable >= 0.8 ? "High" : "Medium" }];
+    const last = items[items.length - 1];
+    return [{
+      merchant: last.merchant,
+      merchantKey: last.merchantKey,
+      frequency,
+      currentAmount: last.amount,
+      typicalAmount,
+      firstObserved: items[0].date,
+      lastObserved: last.date,
+      count: items.length,
+      pfPrimary: last.pfPrimary,
+      pfDetailed: last.pfDetailed,
+      category: last.category,
+      exclusion: last.exclusion,
+      hasMerchantName: last.hasMerchantName,
+      transactions: items,
+      amountStability: stable,
+      plaidConfirmed: false,
+    }];
   });
 }
 
-const billTerms = /UTILITIES|TELECOMMUNICATION|INSURANCE|RENT|MORTGAGE|GAS|ELECTRIC|WATER|INTERNET|PHONE/;
-
-function subscriptionAnalyzer(recurring) {
-  return recurring.filter((item) => !billTerms.test(item.category)).map((item) => ({
-    type: "subscription", title: item.merchant, badge: "Recurring subscription detected", amount: item.currentAmount,
-    frequency: item.frequency, monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12), annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
-    confidence: item.confidence, firstObserved: item.firstObserved, lastObserved: item.lastObserved,
-    reason: `${item.count} similarly timed charges were observed at an approximately ${item.frequency} cadence.`,
-    nextSteps: [
-      `Log into your ${item.merchant} account and review your current plan and usage.`,
-      `If you no longer use this service, cancel it directly with ${item.merchant} or through your account settings.`,
-      `Check if a lower tier or free alternative exists that still meets your needs.`,
-      `If you cancel, you could save approximately $${Math.round(item.currentAmount * yearlyMultiplier[item.frequency])} per year.`,
-    ],
-  }));
+// When Plaid /transactions/recurring/get is available, mark rules-based streams Plaid confirmed
+function mergePlaidRecurring(rulesBased, plaidStreams) {
+  if (!Array.isArray(plaidStreams) || !plaidStreams.length) return rulesBased;
+  const plaidKeys = new Set(plaidStreams.map((s) => merchantKey(s.merchant_name || s.name || "")));
+  return rulesBased.map((stream) => (plaidKeys.has(stream.merchantKey) ? { ...stream, plaidConfirmed: true } : stream));
 }
 
-function billAnalyzer(recurring) {
-  return recurring.filter((item) => billTerms.test(item.category)).map((item) => ({
-    type: "bill", title: item.merchant, badge: "Recurring bill detected", amount: item.currentAmount, frequency: item.frequency,
-    monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12), annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
-    confidence: item.confidence, firstObserved: item.firstObserved, lastObserved: item.lastObserved,
-    reason: `${item.count} recurring household-service charges were detected.`,
-    nextSteps: [
-      `Review your ${item.merchant} bill for any unexplained charges or rate changes.`,
-      `Contact ${item.merchant} to ask about discounts, promotions, or loyalty rates.`,
-      `Compare rates with competing providers to see if you could save.`,
-      `Consider bundling services or adjusting your plan to reduce costs.`,
-    ],
-  }));
+function classifyRecurringType(stream) {
+  if (stream.exclusion === "debt") return "debt";
+  if (stream.exclusion === "transfer") return "transfer";
+  if (stream.exclusion === "income") return "income";
+  if (stream.exclusion === "refund") return "refund";
+  if (stream.exclusion === "rent_mortgage") return "rent_mortgage";
+  if (stream.exclusion === "fee") return "fee";
+  if (stream.pfPrimary === "RENT_AND_UTILITIES") return "bill";
+  if (stream.pfPrimary === "INSURANCE") return "insurance";
+  return null; // subscription candidate
+}
+
+function subscriptionConfidence(stream) {
+  if (stream.plaidConfirmed) return "High";
+  if (SUBSCRIPTION_PF_DETAILED.includes(stream.pfDetailed)) return "High";
+  if (SUBSCRIPTION_PF_PRIMARY_HINTS.includes(stream.pfPrimary)) return "Medium";
+  return "Low"; // uncertain — omitted from subscription findings
+}
+
+function subscriptionAnalyzer(recurring) {
+  return recurring
+    .filter((item) => classifyRecurringType(item) === null)
+    .filter((item) => subscriptionConfidence(item) !== "Low")
+    .map((item) => {
+      const confidence = subscriptionConfidence(item);
+      return {
+        type: "subscription",
+        title: item.merchant,
+        merchant: item.merchant,
+        badge: confidence === "High" ? "Recurring subscription detected" : "Possible subscription",
+        amount: item.currentAmount,
+        frequency: item.frequency,
+        monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12),
+        annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
+        confidence,
+        firstObserved: item.firstObserved,
+        lastObserved: item.lastObserved,
+        reason: `${item.count} recurring charges were observed at an approximately ${item.frequency} cadence.`,
+        nextSteps: [
+          `Log into your ${item.merchant} account and review your current plan and usage.`,
+          `If you no longer use this service, cancel it directly with ${item.merchant} or through your account settings.`,
+          `Check if a lower tier or free alternative exists that still meets your needs.`,
+          `If you cancel, you could save approximately $${Math.round(item.currentAmount * yearlyMultiplier[item.frequency])} per year.`,
+        ],
+      };
+    });
+}
+
+// Informational recurring expenses (bills, insurance, debt, rent/mortgage) — NOT framed as cancellable savings
+function recurringExpenseAnalyzer(recurring) {
+  const keepTypes = new Set(["debt", "bill", "insurance", "rent_mortgage"]);
+  const labelMap = {
+    debt: { badge: "Recurring debt payment", reason: `${"count"} recurring credit card / loan payments were detected.` },
+    bill: { badge: "Recurring bill detected", reason: `${"count"} recurring household-service charges were detected.` },
+    insurance: { badge: "Recurring insurance premium", reason: `${"count"} recurring insurance premium charges were detected.` },
+    rent_mortgage: { badge: "Recurring rent / mortgage", reason: `${"count"} recurring rent or mortgage payments were detected.` },
+  };
+  return recurring
+    .filter((item) => keepTypes.has(classifyRecurringType(item)))
+    .map((item) => {
+      const t = classifyRecurringType(item);
+      const label = labelMap[t];
+      return {
+        type: t,
+        title: item.merchant,
+        merchant: item.merchant,
+        badge: label.badge,
+        amount: item.currentAmount,
+        frequency: item.frequency,
+        monthlyCost: item.currentAmount * (yearlyMultiplier[item.frequency] / 12),
+        annualCost: item.currentAmount * yearlyMultiplier[item.frequency],
+        confidence: item.amountStability >= 0.8 ? "High" : "Medium",
+        firstObserved: item.firstObserved,
+        lastObserved: item.lastObserved,
+        reason: label.reason.replace("count", item.count),
+      };
+    });
 }
 
 function priceIncreaseAnalyzer(recurring) {
   return recurring.flatMap((item) => {
+    if (item.exclusion) return []; // skip debt/transfer/income/etc — a payment amount changing is not a "price increase"
     if (item.transactions.length < 3) return [];
     const previous = median(item.transactions.slice(0, -1).map((transaction) => transaction.amount));
     const increase = item.currentAmount - previous;
@@ -124,10 +281,9 @@ function overchargeAnalyzer(transactions) {
 
 function bankFeeAnalyzer(transactions) {
   const feePatterns = /\bfee\b|overdraft|\bnsf\b|insufficient fund|maintenance|service charge|\batm\b|late fee|monthly fee|annual fee|foreign transaction|wire fee|statement fee|replacement fee|excess activity|minimum balance|return item|paper statement|account fee/;
-  const feeTxns = transactions.filter((t) => feePatterns.test(t.merchantKey) || feePatterns.test(cleanMerchant(t.description)));
+  const feeTxns = transactions.filter((t) => feePatterns.test(t.merchantKey) || feePatterns.test(cleanText(t.description)));
   if (feeTxns.length === 0) return [];
 
-  // Group identical fees (same merchant + exact amount) to surface recurring overcharging
   const groups = {};
   feeTxns.forEach((t) => {
     const key = `${t.merchantKey}__${t.amount.toFixed(2)}`;
@@ -323,20 +479,26 @@ export function mergeResearchFindings(baseResult, research) {
   };
 }
 
-export function analyzeTransactions(transactions, accounts) {
+export function analyzeTransactions(transactions, accounts, plaidRecurringStreams = null) {
   const normalized = normalizeTransactions(transactions, accounts);
-  const recurring = recurringPaymentDetector(normalized);
-  const recurringFindings = [...subscriptionAnalyzer(recurring), ...billAnalyzer(recurring)];
+  let recurring = recurringPaymentDetector(normalized);
+  recurring = mergePlaidRecurring(recurring, plaidRecurringStreams);
+
+  const subscriptionFindings = subscriptionAnalyzer(recurring);
+  const otherRecurringFindings = recurringExpenseAnalyzer(recurring);
   const increases = priceIncreaseAnalyzer(recurring);
   const duplicates = overchargeAnalyzer(normalized);
   const fees = bankFeeAnalyzer(normalized);
   const medical = medicalBillingAnalyzer(normalized);
-  const recurringAnnual = recurringFindings.reduce((sum, item) => sum + item.annualCost, 0);
-  const potentialSavings = increases.reduce((sum, item) => sum + item.annualImpact, 0);
+
+  const recurringAnnual = [...subscriptionFindings, ...otherRecurringFindings].reduce((sum, item) => sum + (item.annualCost || 0), 0);
+  const potentialSavings = increases.reduce((sum, item) => sum + item.annualImpact, 0)
+    + subscriptionFindings.reduce((sum, item) => sum + (item.annualCost || 0), 0);
   const potentialRecovery = duplicates.reduce((sum, item) => sum + item.recovery, 0) + fees.reduce((sum, item) => sum + item.recovery, 0);
+
   return {
-    summary: { currentRecurringSpending: recurringAnnual, potentialSavings, potentialRecovery, transactionsAnalyzed: normalized.length, accountsAnalyzed: accounts.length },
-    findings: [...increases, ...duplicates, ...fees, ...medical, ...recurringFindings],
+    summary: { currentRecurringSpending: recurringAnnual, potentialSavings, potentialRecovery, transactionsAnalyzed: normalized.length, accountsAnalyzed: (accounts || []).length },
+    findings: [...increases, ...duplicates, ...fees, ...medical, ...subscriptionFindings, ...otherRecurringFindings],
     modules: { settlements: [], productAlerts: [] },
   };
 }
