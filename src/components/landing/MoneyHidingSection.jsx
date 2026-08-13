@@ -4,7 +4,7 @@ export default function MoneyHidingSection() {
   return (
     <section className="relative z-10 px-5 py-16 lg:px-8 lg:py-40">
       <div className="mx-auto max-w-4xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground hidden">The opportunity</p>
+        
         <h2 className="mt-5 font-heading text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
           There's money hiding in plain sight.
         </h2>
