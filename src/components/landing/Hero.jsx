@@ -11,8 +11,7 @@ export default function Hero({ onStart }) {
 </h1>
       <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8">Connect your accounts. We'll look through your spending and find subscriptions, rising bills, duplicate charges, overcharges, and other ways you could be saving.</p>
       <GlowButton onClick={onStart} className="mt-7 sm:mt-9">Find My Savings <ArrowRight className="h-4 w-4" /></GlowButton>
-      <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="h-4 w-4" />**Plaid-secured. Credentials stay private.**
-</p>
+      <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="h-4 w-4" />Plaid-secured. Credentials stay private.</p>
     </div><div className="visual-float"><ScannerVisual /></div>
   </div></main>;
 }
