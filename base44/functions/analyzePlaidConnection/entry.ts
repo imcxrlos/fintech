@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { plaidRequest } from "../../shared/plaid.ts";
+import { plaidRequest, syncAllTransactions } from "../../shared/plaid.ts";
 import { analyzeTransactions, extractResearchTargets, mergeResearchFindings } from "../../shared/transactionAnalysis.ts";
 
 export default async function(req) {
@@ -8,23 +8,29 @@ export default async function(req) {
     if (!publicToken) return Response.json({ error: "A Plaid public token is required" }, { status: 400 });
     const exchange = await plaidRequest("/item/public_token/exchange", { public_token: publicToken });
     const accessToken = exchange.access_token;
-    let cursor = null;
-    let hasMore = true;
-    let transactions = [];
-    let rounds = 0;
-    while (hasMore && rounds < 10) {
-      const sync = await plaidRequest("/transactions/sync", { access_token: accessToken, cursor, count: 500 });
-      transactions = transactions.concat(sync.added || [], sync.modified || []);
-      cursor = sync.next_cursor;
-      hasMore = Boolean(sync.has_more);
-      rounds += 1;
-    }
+    const itemId = exchange.item_id;
+    const { transactions, cursor } = await syncAllTransactions(accessToken);
     const accountData = await plaidRequest("/accounts/get", { access_token: accessToken });
 
     const baseResult = analyzeTransactions(transactions, accountData.accounts || []);
 
     try {
       const base44 = createClientFromRequest(req);
+      let userId = null;
+      try { const currentUser = await base44.auth.me(); if (currentUser) userId = currentUser.id; } catch (_e) {}
+      try {
+        await base44.asServiceRole.entities.PlaidItem.create({
+          item_id: itemId,
+          access_token: accessToken,
+          cursor,
+          user_id: userId,
+          products: ["transactions"],
+          status: "active",
+        });
+      } catch (itemError) {
+        console.error("[analyzePlaidConnection] store item failed:", itemError.message);
+      }
+
       const { merchants, employers } = extractResearchTargets(transactions);
 
       if (merchants.length > 0 || employers.length > 0) {
@@ -59,7 +65,7 @@ Employers: ${employerList || "None detected"}`;
                 type: "array",
                 items: {
                   type: "object",
-                  properties: {
+                  "properties": {
                     merchant: { type: "string" },
                     category: { type: "string", enum: ["settlement", "recall", "wage"] },
                     title: { type: "string" },
