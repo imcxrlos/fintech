@@ -37,7 +37,7 @@ export default function ActionableSection() {
     <section className="relative z-10 px-5 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="pb-6 pt-16 lg:pb-8 lg:pt-32">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground hidden">The report</p>
+          
           <h2 className="mt-5 font-heading text-[2.5rem] leading-[1.05] tracking-[-0.035em] sm:text-6xl">
             We don't just show you a number.
           </h2>
